@@ -6,16 +6,13 @@ import (
 	"log"
 
 	"github.com/jackc/pgx/v5/pgxpool"
-	"github.com/mbilarusdev/durak_auth_bot/internal/common"
 	"github.com/mbilarusdev/durak_auth_bot/internal/locator"
 	"github.com/mbilarusdev/durak_auth_bot/internal/models"
-	"github.com/mbilarusdev/jwt/jwt"
 )
 
 type TokenProvider interface {
 	Insert(token *models.Token) (*models.Token, error)
 	FindOne(playerID uint64) (*models.Token, error)
-	FindActual(playerID uint64) (*models.Token, error)
 	UpdateStatus(ID uint64, status string) error
 }
 
@@ -75,23 +72,6 @@ func (repository *TokenRepository) FindOne(playerID uint64) (*models.Token, erro
 		return nil, err
 	}
 	return findedToken, nil
-}
-
-func (repository *TokenRepository) FindActual(playerID uint64) (*models.Token, error) {
-	config := locator.Instance.Get("bot_config").(*common.AuthBotConfig)
-	finded, err := repository.FindOne(playerID)
-	if err != nil {
-		return nil, err
-	}
-	if finded == nil {
-		return nil, nil
-	}
-	available := jwt.Check(finded.Jwt, config.SecretKey)
-	if !available && finded.Status != models.TokenBlocked {
-		repository.UpdateStatus(finded.ID, models.TokenExpired)
-		return repository.FindOne(playerID)
-	}
-	return finded, nil
 }
 
 func (repository *TokenRepository) UpdateStatus(ID uint64, status string) error {

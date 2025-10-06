@@ -15,44 +15,51 @@ import (
 	"github.com/mbilarusdev/durak_auth_bot/internal/service"
 )
 
-var Config common.Config
-
 func Run() {
+	// Locator
 	locator.Setup()
 	locator.Instance.Register("bot_config", common.NewAuthBotConfig())
 	locator.Instance.Register("tg_client", client.NewTelegramClient())
 
+	// Repositories
 	playerRepository := repository.NewPlayerRepository()
 	codeRepository := repository.NewCodeRepository()
 	tokenRepository := repository.NewTokenRepository()
 
+	// Services
+	codeService := service.NewCodeService(codeRepository)
 	messageService := service.NewMessageService()
-	updatesService := service.NewUpdatesService(messageService, playerRepository)
+	playerService := service.NewPlayerService(playerRepository)
+	tokenService := service.NewTokenService(tokenRepository)
+	updatesService := service.NewUpdatesService(messageService, playerService)
 
+	// Bot
 	bot := bot.NewAuthBot(updatesService)
 
+	// Endpoints
 	confirmCodeEndpoint := endpoint.NewConfirmCodeEndpoint(
-		codeRepository,
+		codeService,
 		messageService,
-		playerRepository,
-		tokenRepository,
+		playerService,
+		tokenService,
 	)
 	sendCodeEndpoint := endpoint.NewSendCodeEndpoint(
-		codeRepository,
+		codeService,
 		messageService,
-		playerRepository,
+		playerService,
 	)
-	checkAuthEndpoint := endpoint.NewCheckAuthEndpoint(tokenRepository)
-	logoutEndpoint := endpoint.NewLogoutEndpoint(tokenRepository)
+	checkAuthEndpoint := endpoint.NewCheckAuthEndpoint(tokenService)
+	logoutEndpoint := endpoint.NewLogoutEndpoint(tokenService)
 
-	go bot.StartPolling()
-
+	// Router
 	router := mux.NewRouter()
 	router.HandleFunc("/code/send", sendCodeEndpoint.Call).Methods(http.MethodPost)
 	router.HandleFunc("/code/confirm", confirmCodeEndpoint.Call).Methods(http.MethodPost)
 	router.HandleFunc("/auth/check", checkAuthEndpoint.Call).Methods(http.MethodGet)
 	router.HandleFunc("/logout", logoutEndpoint.Call).Methods(http.MethodPost)
 
+	// Serving
+	go bot.StartPolling()
 	server := &http.Server{
 		Addr:           ":8080",
 		Handler:        router,
@@ -60,6 +67,5 @@ func Run() {
 		WriteTimeout:   10 * time.Second,
 		MaxHeaderBytes: 1 << 20,
 	}
-
 	log.Fatal(server.ListenAndServe())
 }

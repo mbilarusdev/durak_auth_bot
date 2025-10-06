@@ -7,6 +7,7 @@ type Config interface {
 }
 
 type AuthBotConfig struct {
+	AppName   string
 	SecretKey string
 	Token     string
 }
@@ -18,6 +19,7 @@ func NewAuthBotConfig() *AuthBotConfig {
 }
 
 func (config *AuthBotConfig) parse() {
+	config.AppName = "durak"
 	config.Token = parseVar("TOKEN")
 	config.SecretKey = parseVar("SECRET_KEY")
 }

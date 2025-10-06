@@ -6,33 +6,28 @@ import (
 	"io"
 	"net/http"
 
-	"github.com/mbilarusdev/durak_auth_bot/internal/common"
-	"github.com/mbilarusdev/durak_auth_bot/internal/locator"
 	"github.com/mbilarusdev/durak_auth_bot/internal/models"
-	"github.com/mbilarusdev/durak_auth_bot/internal/repository"
 	"github.com/mbilarusdev/durak_auth_bot/internal/service"
-	"github.com/mbilarusdev/jwt/jwt"
-	jwtmodels "github.com/mbilarusdev/jwt/models"
 )
 
 type ConfirmCodeEndpoint struct {
-	codeRepository   repository.CodeProvider
-	messageService   service.MessageManager
-	playerRepository repository.PlayerProvider
-	tokenRepository  repository.TokenProvider
+	codeService    service.CodeManager
+	messageService service.MessageManager
+	playerService  service.PlayerManager
+	tokenService   service.TokenManager
 }
 
 func NewConfirmCodeEndpoint(
-	codeRepository *repository.CodeRepository,
+	codeService *service.CodeService,
 	messageService *service.MessageService,
-	playerRepository *repository.PlayerRepository,
-	tokenRepository *repository.TokenRepository,
+	playerService *service.PlayerService,
+	tokenService *service.TokenService,
 ) *ConfirmCodeEndpoint {
 	endpoint := &ConfirmCodeEndpoint{}
-	endpoint.codeRepository = codeRepository
+	endpoint.codeService = codeService
 	endpoint.messageService = messageService
-	endpoint.playerRepository = playerRepository
-	endpoint.tokenRepository = tokenRepository
+	endpoint.playerService = playerService
+	endpoint.tokenService = tokenService
 
 	return endpoint
 }
@@ -51,29 +46,28 @@ func (endpoint *ConfirmCodeEndpoint) Call(w http.ResponseWriter, r *http.Request
 		w.Write([]byte("Ошибка при десериализации JSON"))
 		return
 	}
-	player, err := endpoint.playerRepository.FindOne(
-		&models.FindOptions{PhoneNumber: confirmCodeRequest.PhoneNumber},
-	)
+	player, err := endpoint.playerService.FindByPhone(confirmCodeRequest.PhoneNumber)
 	if err != nil ||
 		player == nil {
 		w.WriteHeader(http.StatusNotFound)
 		w.Write([]byte("Контакт с данным номером телефона не найден"))
 		return
 	}
-	code, err := endpoint.codeRepository.GetCode(player.PhoneNumber)
+	isRightCode, err := endpoint.codeService.ConsumeIsRightCode(
+		player.PhoneNumber,
+		confirmCodeRequest.Code,
+	)
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		w.Write([]byte("Ошибка получения кода"))
 		return
 	}
-	if code != confirmCodeRequest.Code {
+	if !isRightCode {
 		w.WriteHeader(http.StatusUnauthorized)
 		w.Write([]byte("Неправильный код!"))
 		return
 	}
-	endpoint.codeRepository.DelCode(confirmCodeRequest.PhoneNumber)
-	config := locator.Instance.Get("bot_config").(*common.AuthBotConfig)
-	existedToken, err := endpoint.tokenRepository.FindActual(player.ID)
+	existedToken, err := endpoint.tokenService.FindActualByPlayerID(player.ID)
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		w.Write([]byte("Ошибка создания токена"))
@@ -85,13 +79,7 @@ func (endpoint *ConfirmCodeEndpoint) Call(w http.ResponseWriter, r *http.Request
 		w.Write([]byte("У вас уже есть токен!"))
 		return
 	}
-	newJwt := jwt.IssueShort(
-		&jwtmodels.JwtShortPayload{Iss: "durak", Sub: fmt.Sprint(player.ID)},
-		config.SecretKey,
-	)
-	newToken, err := endpoint.tokenRepository.Insert(
-		&models.Token{PlayerID: player.ID, Jwt: newJwt, Status: models.TokenAvailable},
-	)
+	newToken, err := endpoint.tokenService.IssueToken(player.ID)
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		w.Write([]byte("Ошибка создания токена"))

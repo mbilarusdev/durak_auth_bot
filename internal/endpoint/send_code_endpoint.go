@@ -8,26 +8,24 @@ import (
 	"net/http"
 
 	"github.com/mbilarusdev/durak_auth_bot/internal/models"
-	"github.com/mbilarusdev/durak_auth_bot/internal/repository"
 	"github.com/mbilarusdev/durak_auth_bot/internal/service"
-	"github.com/mbilarusdev/durak_auth_bot/internal/utils"
 )
 
 type SendCodeEndpoint struct {
-	codeRepository   repository.CodeProvider
-	messageService   service.MessageManager
-	playerRepository repository.PlayerProvider
+	codeService    service.CodeManager
+	messageService service.MessageManager
+	playerService  service.PlayerManager
 }
 
 func NewSendCodeEndpoint(
-	codeRepository *repository.CodeRepository,
+	codeService *service.CodeService,
 	messageService *service.MessageService,
-	playerRepository *repository.PlayerRepository,
+	playerService *service.PlayerService,
 ) *SendCodeEndpoint {
 	endpoint := &SendCodeEndpoint{}
-	endpoint.codeRepository = codeRepository
+	endpoint.codeService = codeService
 	endpoint.messageService = messageService
-	endpoint.playerRepository = playerRepository
+	endpoint.playerService = playerService
 
 	return endpoint
 }
@@ -46,22 +44,20 @@ func (endpoint *SendCodeEndpoint) Call(w http.ResponseWriter, r *http.Request) {
 		w.Write([]byte("Ошибка при десериализации JSON"))
 		return
 	}
-	player, err := endpoint.playerRepository.FindOne(
-		&models.FindOptions{PhoneNumber: getCodeRequest.PhoneNumber},
-	)
+	player, err := endpoint.playerService.FindByPhone(getCodeRequest.PhoneNumber)
 	if err != nil ||
 		player == nil {
 		w.WriteHeader(http.StatusNotFound)
 		w.Write([]byte("Контакт с данным номером телефона не найден"))
 		return
 	}
-	smsCode := utils.GenerateRandomCode()
-	if err = endpoint.codeRepository.SaveCode(getCodeRequest.PhoneNumber, smsCode); err != nil {
+	code, err := endpoint.codeService.CreateCode(getCodeRequest.PhoneNumber)
+	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		w.Write([]byte("Ошибка сохранения кода"))
 		return
 	}
-	if err = endpoint.messageService.Send(fmt.Sprintf("Ваш код подтверждения: %v", smsCode), player.ChatID); err != nil {
+	if err = endpoint.messageService.Send(fmt.Sprintf("Ваш код подтверждения: %v", code), player.ChatID); err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		w.Write([]byte("Ошибка отправки кода"))
 		return

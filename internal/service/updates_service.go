@@ -4,12 +4,10 @@ import (
 	"encoding/json"
 	"fmt"
 	"log"
-	"time"
 
 	"github.com/mbilarusdev/durak_auth_bot/internal/client"
 	"github.com/mbilarusdev/durak_auth_bot/internal/locator"
 	"github.com/mbilarusdev/durak_auth_bot/internal/models"
-	"github.com/mbilarusdev/durak_auth_bot/internal/repository"
 )
 
 type UpdatesManager interface {
@@ -18,33 +16,32 @@ type UpdatesManager interface {
 }
 
 type UpdatesService struct {
-	messageService   MessageManager
-	playerRepository repository.PlayerProvider
+	messageService MessageManager
+	playerService  PlayerManager
 }
 
 func NewUpdatesService(
 	messageService *MessageService,
-	playerRepository *repository.PlayerRepository,
+	playerService *PlayerService,
 ) *UpdatesService {
 	service := &UpdatesService{}
 	service.messageService = messageService
-	service.playerRepository = playerRepository
-
+	service.playerService = playerService
 	return service
 }
 
 func (service *UpdatesService) Process(updates []models.Update) {
-	errMsg := "Произошла техническая ошибка, попробуйте позже..."
+	errMsg := "Произошла ошибка, попробуйте позже"
 	for _, upd := range updates {
-		if upd.Message != nil && upd.Message.Contact != nil {
+		isMsgWithContact := upd.Message != nil && upd.Message.Contact != nil
+		isStartMsg := upd.Message != nil && upd.Message.Text == "/start"
+		if isMsgWithContact {
 			log.Printf(
 				"Контакт получен: Имя=%s, Телефон=%s\n",
 				upd.Message.Contact.FirstName,
 				upd.Message.Contact.PhoneNumber,
 			)
-			player, err := service.playerRepository.FindOne(
-				&models.FindOptions{PhoneNumber: upd.Message.Contact.PhoneNumber},
-			)
+			player, err := service.playerService.FindByPhone(upd.Message.Contact.PhoneNumber)
 			if err != nil {
 				service.messageService.Send(errMsg, upd.Message.Chat.ID)
 				continue
@@ -53,17 +50,17 @@ func (service *UpdatesService) Process(updates []models.Update) {
 				service.messageService.Send("Ваш контакт уже был сохранен!", upd.Message.Chat.ID)
 				continue
 			}
-			_, err = service.playerRepository.Insert(&models.Player{
-				PhoneNumber: upd.Message.Contact.PhoneNumber,
-				ChatID:      upd.Message.Chat.ID,
-				CreatedAt:   time.Now().UTC().UnixMilli(),
-			})
-			if err != nil {
+			if _, err = service.playerService.CreatePlayer(
+				upd.Message.Contact.PhoneNumber,
+				upd.Message.Chat.ID,
+			); err != nil {
 				service.messageService.Send(errMsg, upd.Message.Chat.ID)
+				continue
 			}
 			service.messageService.Send("Ваш контакт успешно сохранен!", upd.Message.Chat.ID)
-		} else if upd.Message != nil && upd.Message.Text == "/start" {
-			player, err := service.playerRepository.FindOne(&models.FindOptions{ChatID: upd.Message.Chat.ID})
+		}
+		if isStartMsg {
+			player, err := service.playerService.FindByChatID(upd.Message.Chat.ID)
 			if err != nil {
 				service.messageService.Send(errMsg, upd.Message.Chat.ID)
 				continue
