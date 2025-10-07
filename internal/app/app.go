@@ -13,6 +13,7 @@ import (
 	"github.com/mbilarusdev/durak_auth_bot/internal/locator"
 	"github.com/mbilarusdev/durak_auth_bot/internal/repository"
 	"github.com/mbilarusdev/durak_auth_bot/internal/service"
+	"github.com/mbilarusdev/durak_network/network"
 )
 
 func Run() {
@@ -53,10 +54,12 @@ func Run() {
 
 	// Router
 	router := mux.NewRouter()
-	router.HandleFunc("/code/send", sendCodeEndpoint.Call).Methods(http.MethodPost)
-	router.HandleFunc("/code/confirm", confirmCodeEndpoint.Call).Methods(http.MethodPost)
-	router.HandleFunc("/auth/check", checkAuthEndpoint.Call).Methods(http.MethodGet)
-	router.HandleFunc("/logout", logoutEndpoint.Call).Methods(http.MethodPost)
+	router.HandleFunc("/code/send", network.Handler(sendCodeEndpoint.Call)).Methods(http.MethodPost)
+	router.HandleFunc("/code/confirm", network.Handler(confirmCodeEndpoint.Call)).
+		Methods(http.MethodPost)
+	router.HandleFunc("/login/check", network.Handler(checkAuthEndpoint.Call)).
+		Methods(http.MethodGet)
+	router.HandleFunc("/logout", network.Handler(logoutEndpoint.Call)).Methods(http.MethodPost)
 
 	// Serving
 	go bot.StartPolling()

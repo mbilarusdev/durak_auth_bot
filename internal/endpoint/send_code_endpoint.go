@@ -4,11 +4,11 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
-	"log"
 	"net/http"
 
 	"github.com/mbilarusdev/durak_auth_bot/internal/models"
 	"github.com/mbilarusdev/durak_auth_bot/internal/service"
+	"github.com/mbilarusdev/durak_network/network"
 )
 
 type SendCodeEndpoint struct {
@@ -30,39 +30,31 @@ func NewSendCodeEndpoint(
 	return endpoint
 }
 
-func (endpoint *SendCodeEndpoint) Call(w http.ResponseWriter, r *http.Request) {
+func (endpoint *SendCodeEndpoint) Call(
+	w http.ResponseWriter,
+	r *http.Request,
+) *network.DurakHandlerResult {
 	bodyBytes, err := io.ReadAll(r.Body)
 	if err != nil {
-		w.WriteHeader(http.StatusBadRequest)
-		w.Write([]byte("Ошибка при чтении Body"))
-		return
+		return network.ReadBodyError(w)
 	}
 	getCodeRequest := &models.GetCodeRequest{}
 	err = json.Unmarshal(bodyBytes, getCodeRequest)
 	if err != nil {
-		w.WriteHeader(http.StatusBadRequest)
-		w.Write([]byte("Ошибка при десериализации JSON"))
-		return
+		return network.UnmarshalingError(w)
 	}
 	player, err := endpoint.playerService.FindByPhone(getCodeRequest.PhoneNumber)
 	if err != nil ||
 		player == nil {
-		w.WriteHeader(http.StatusNotFound)
-		w.Write([]byte("Контакт с данным номером телефона не найден"))
-		return
+		return network.NotFound(w, "Игрок с данным номером телефона не найден")
 	}
 	code, err := endpoint.codeService.CreateCode(getCodeRequest.PhoneNumber)
 	if err != nil {
-		w.WriteHeader(http.StatusInternalServerError)
-		w.Write([]byte("Ошибка сохранения кода"))
-		return
+		return network.ServerError(w, "Ошибка создания кода")
 	}
 	if err = endpoint.messageService.Send(fmt.Sprintf("Ваш код подтверждения: %v", code), player.ChatID); err != nil {
-		w.WriteHeader(http.StatusInternalServerError)
-		w.Write([]byte("Ошибка отправки кода"))
-		return
+		return network.ServerError(w, "Ошибка отправки кода")
+
 	}
-	w.WriteHeader(http.StatusOK)
-	log.Printf("Код успешно отправлен для номера телефона %v", getCodeRequest.PhoneNumber)
-	w.Write([]byte("Код успешно отправлен"))
+	return network.SuccessString(w, "Вы успешно отправили код!")
 }

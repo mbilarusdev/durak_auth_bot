@@ -2,12 +2,12 @@ package endpoint
 
 import (
 	"encoding/json"
-	"fmt"
 	"io"
 	"net/http"
 
 	"github.com/mbilarusdev/durak_auth_bot/internal/models"
 	"github.com/mbilarusdev/durak_auth_bot/internal/service"
+	"github.com/mbilarusdev/durak_network/network"
 )
 
 type ConfirmCodeEndpoint struct {
@@ -32,60 +32,45 @@ func NewConfirmCodeEndpoint(
 	return endpoint
 }
 
-func (endpoint *ConfirmCodeEndpoint) Call(w http.ResponseWriter, r *http.Request) {
+func (endpoint *ConfirmCodeEndpoint) Call(
+	w http.ResponseWriter,
+	r *http.Request,
+) *network.DurakHandlerResult {
 	bodyBytes, err := io.ReadAll(r.Body)
 	if err != nil {
-		w.WriteHeader(http.StatusBadRequest)
-		w.Write([]byte("Ошибка при чтении Body"))
-		return
+		return network.ReadBodyError(w)
 	}
 	confirmCodeRequest := &models.ConfirmCodeRequest{}
 	err = json.Unmarshal(bodyBytes, confirmCodeRequest)
 	if err != nil {
-		w.WriteHeader(http.StatusBadRequest)
-		w.Write([]byte("Ошибка при десериализации JSON"))
-		return
+		return network.UnmarshalingError(w)
 	}
 	player, err := endpoint.playerService.FindByPhone(confirmCodeRequest.PhoneNumber)
 	if err != nil ||
 		player == nil {
-		w.WriteHeader(http.StatusNotFound)
-		w.Write([]byte("Контакт с данным номером телефона не найден"))
-		return
+		return network.NotFound(w, "Игрок с данным номером телефона не найден")
 	}
 	isRightCode, err := endpoint.codeService.ConsumeIsRightCode(
 		player.PhoneNumber,
 		confirmCodeRequest.Code,
 	)
 	if err != nil {
-		w.WriteHeader(http.StatusInternalServerError)
-		w.Write([]byte("Ошибка получения кода"))
-		return
+		return network.ServerError(w, "Ошибка при проверке кода")
+
 	}
 	if !isRightCode {
-		w.WriteHeader(http.StatusUnauthorized)
-		w.Write([]byte("Неправильный код!"))
-		return
+		return network.WrongInfo(w, "Неправильный код")
 	}
 	existedToken, err := endpoint.tokenService.FindActualByPlayerID(player.ID)
 	if err != nil {
-		w.WriteHeader(http.StatusInternalServerError)
-		w.Write([]byte("Ошибка создания токена"))
-		return
+		return network.ServerError(w, "Ошибка выпуска токена")
 	}
 	if existedToken != nil && existedToken.Status == models.TokenAvailable {
-		w.WriteHeader(http.StatusOK)
-		w.Header().Set("Authorization", fmt.Sprintf("Bearer %v", existedToken.Jwt))
-		w.Write([]byte("У вас уже есть токен!"))
-		return
+		return network.AlreadyExistJWT(w, existedToken.Jwt)
 	}
 	newToken, err := endpoint.tokenService.IssueToken(player.ID)
 	if err != nil {
-		w.WriteHeader(http.StatusInternalServerError)
-		w.Write([]byte("Ошибка создания токена"))
-		return
+		return network.ServerError(w, "Ошибка выпуска токена")
 	}
-	w.WriteHeader(http.StatusOK)
-	w.Header().Set("Authorization", fmt.Sprintf("Bearer %v", newToken.Jwt))
-	w.Write([]byte("Вы успешно авторизованы!"))
+	return network.SuccessJWT(w, newToken.Jwt)
 }

@@ -6,6 +6,7 @@ import (
 
 	"github.com/mbilarusdev/durak_auth_bot/internal/models"
 	"github.com/mbilarusdev/durak_auth_bot/internal/service"
+	"github.com/mbilarusdev/durak_network/network"
 )
 
 type CheckAuthEndpoint struct {
@@ -18,31 +19,25 @@ func NewCheckAuthEndpoint(tokenService *service.TokenService) *CheckAuthEndpoint
 	return endpoint
 }
 
-func (endpoint *CheckAuthEndpoint) Call(w http.ResponseWriter, r *http.Request) {
+func (endpoint *CheckAuthEndpoint) Call(
+	w http.ResponseWriter,
+	r *http.Request,
+) *network.DurakHandlerResult {
 	authHeader := r.Header.Get("Authorization")
 	if authHeader == "" {
-		w.WriteHeader(http.StatusUnauthorized)
-		w.Write([]byte("Токен не передан"))
-		return
+		return network.TokenNotProvided(w)
 	}
 	segments := strings.Split(authHeader, " ")
 	if len(segments) != 2 {
-		w.WriteHeader(http.StatusUnauthorized)
-		w.Write([]byte("Неверный формат передачи токена"))
-		return
+		return network.TokenIncorrect(w)
 	}
 	token := segments[1]
 	actualToken, err := endpoint.tokenService.FindActualByToken(token)
 	if err != nil {
-		w.WriteHeader(http.StatusInternalServerError)
-		w.Write([]byte("Ошибка при проверке токена"))
-		return
+		return network.ServerError(w, "Ошибка проверки информации о токене")
 	}
 	if actualToken == nil || actualToken.Status != models.TokenAvailable {
-		w.WriteHeader(http.StatusUnauthorized)
-		w.Write([]byte("Неверный токен или срок его действия истек"))
-		return
+		return network.TokenIncorrect(w)
 	}
-	w.WriteHeader(http.StatusOK)
-	w.Write([]byte("Токен действителен!"))
+	return network.SuccessString(w, "Токен верен!")
 }
