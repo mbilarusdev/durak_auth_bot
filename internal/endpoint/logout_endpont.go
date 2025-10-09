@@ -22,7 +22,7 @@ func NewLogoutEndpoint(tokenService *service.TokenService) *LogoutEndpoint {
 func (endpoint *LogoutEndpoint) Call(
 	w http.ResponseWriter,
 	r *http.Request,
-) *network.DurakHandlerResult {
+) *network.Result {
 	authHeader := r.Header.Get("Authorization")
 	if authHeader == "" {
 		return network.TokenNotProvided(w)

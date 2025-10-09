@@ -35,7 +35,7 @@ func NewConfirmCodeEndpoint(
 func (endpoint *ConfirmCodeEndpoint) Call(
 	w http.ResponseWriter,
 	r *http.Request,
-) *network.DurakHandlerResult {
+) *network.Result {
 	bodyBytes, err := io.ReadAll(r.Body)
 	if err != nil {
 		return network.ReadBodyError(w)

@@ -27,6 +27,8 @@ github.com/mbilarusdev/durak_network v1.3.0 h1:AsfH0SkHmBLq7hUp3lCCnLynDoniqysd6
 github.com/mbilarusdev/durak_network v1.3.0/go.mod h1:/PZqqeWu9erW9xw+OnaNgk+LlEfAz+1t2y/lGswHrcI=
 github.com/mbilarusdev/durak_network v1.4.0 h1:y+f3bCzDMhk8LlXmXaM+5AezChpqVX9P/7+ROPF2fQs=
 github.com/mbilarusdev/durak_network v1.4.0/go.mod h1:/PZqqeWu9erW9xw+OnaNgk+LlEfAz+1t2y/lGswHrcI=
+github.com/mbilarusdev/durak_network v1.5.0 h1:SzTagP5uXLf/BrXqFYi+TvfW3F50XFiiR9+fJew9Bhw=
+github.com/mbilarusdev/durak_network v1.5.0/go.mod h1:/PZqqeWu9erW9xw+OnaNgk+LlEfAz+1t2y/lGswHrcI=
 github.com/mbilarusdev/jwt v1.0.0 h1:loSEpDQskw8h45HZEQ+mViLfza1eNxOXOdXKr6AfsiA=
 github.com/mbilarusdev/jwt v1.0.0/go.mod h1:YuCWrLQlDlCXK7xG5dfegbSUqVVRmSFmK/rMqIvMvsE=
 github.com/mbilarusdev/jwt v1.0.1 h1:OuhVeWI//bjHbJBE08ZGccoCXRwRgV/y+8dpawAesqM=

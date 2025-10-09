@@ -7,5 +7,5 @@ import (
 )
 
 type Endpoint interface {
-	Call(w http.ResponseWriter, r *http.Request) *network.DurakHandlerResult
+	Call(w http.ResponseWriter, r *http.Request) *network.Result
 }

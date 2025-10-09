@@ -22,7 +22,7 @@ func NewCheckAuthEndpoint(tokenService *service.TokenService) *CheckAuthEndpoint
 func (endpoint *CheckAuthEndpoint) Call(
 	w http.ResponseWriter,
 	r *http.Request,
-) *network.DurakHandlerResult {
+) *network.Result {
 	authHeader := r.Header.Get("Authorization")
 	if authHeader == "" {
 		return network.TokenNotProvided(w)
