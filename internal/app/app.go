@@ -6,7 +6,6 @@ import (
 	"time"
 
 	"github.com/go-redis/redis/v8"
-	"github.com/gorilla/mux"
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/mbilarusdev/durak_auth_bot/internal/bot"
 	"github.com/mbilarusdev/durak_auth_bot/internal/client"
@@ -14,7 +13,6 @@ import (
 	"github.com/mbilarusdev/durak_auth_bot/internal/endpoint"
 	"github.com/mbilarusdev/durak_auth_bot/internal/repository"
 	"github.com/mbilarusdev/durak_auth_bot/internal/service"
-	"github.com/mbilarusdev/durak_network/network"
 )
 
 func Run() {
@@ -60,19 +58,17 @@ func Run() {
 	logoutEndpoint := endpoint.NewLogoutEndpoint(tokenService)
 
 	// Router
-	router := mux.NewRouter()
-	router.HandleFunc("/code/send", network.Handler(sendCodeEndpoint.Call)).Methods(http.MethodPost)
-	router.HandleFunc("/code/confirm", network.Handler(confirmCodeEndpoint.Call)).
-		Methods(http.MethodPost)
-	router.HandleFunc("/login/check", network.Handler(checkAuthEndpoint.Call)).
-		Methods(http.MethodGet)
-	router.HandleFunc("/logout", network.Handler(logoutEndpoint.Call)).Methods(http.MethodPost)
+	r := common.NewServiceRouter()
+	common.AddRoute(r, "/code/send", sendCodeEndpoint.Call, http.MethodPost)
+	common.AddRoute(r, "/code/confirm", confirmCodeEndpoint.Call, http.MethodPost)
+	common.AddRoute(r, "/login/check", checkAuthEndpoint.Call, http.MethodPost)
+	common.AddRoute(r, "/logout", logoutEndpoint.Call, http.MethodPost)
 
 	// Serving
 	go bot.StartPolling()
 	server := &http.Server{
 		Addr:           ":8080",
-		Handler:        router,
+		Handler:        r,
 		ReadTimeout:    5 * time.Second,
 		WriteTimeout:   10 * time.Second,
 		MaxHeaderBytes: 1 << 20,
