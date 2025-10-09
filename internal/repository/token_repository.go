@@ -6,7 +6,7 @@ import (
 	"log"
 
 	"github.com/jackc/pgx/v5/pgxpool"
-	"github.com/mbilarusdev/durak_auth_bot/internal/locator"
+	"github.com/mbilarusdev/durak_auth_bot/internal/interfaces"
 	"github.com/mbilarusdev/durak_auth_bot/internal/models"
 )
 
@@ -16,16 +16,20 @@ type TokenProvider interface {
 	UpdateStatus(ID uint64, status string) error
 }
 
-type TokenRepository struct{}
+type TokenRepository struct {
+	pool interfaces.DBPool
+}
 
-func NewTokenRepository() *TokenRepository {
-	return new(TokenRepository)
+func NewTokenRepository(pool *pgxpool.Pool) *TokenRepository {
+	repository := new(TokenRepository)
+	repository.pool = pool
+
+	return repository
 }
 
 func (repository *TokenRepository) Insert(token *models.Token) (*models.Token, error) {
-	pool := locator.Instance.Get("pgx_pool").(*pgxpool.Pool)
 	ctx := context.Background()
-	conn, err := pool.Acquire(ctx)
+	conn, err := repository.pool.Acquire(ctx)
 	if err != nil {
 		log.Println("Ошибка при открытии соединения pgx")
 		return nil, err
@@ -54,9 +58,8 @@ func (repository *TokenRepository) Insert(token *models.Token) (*models.Token, e
 }
 
 func (repository *TokenRepository) FindOne(playerID uint64) (*models.Token, error) {
-	pool := locator.Instance.Get("pgx_pool").(*pgxpool.Pool)
 	ctx := context.Background()
-	conn, err := pool.Acquire(ctx)
+	conn, err := repository.pool.Acquire(ctx)
 	if err != nil {
 		log.Println("Ошибка при открытии соединения pgx")
 		return nil, err
@@ -75,9 +78,8 @@ func (repository *TokenRepository) FindOne(playerID uint64) (*models.Token, erro
 }
 
 func (repository *TokenRepository) UpdateStatus(ID uint64, status string) error {
-	pool := locator.Instance.Get("pgx_pool").(*pgxpool.Pool)
 	ctx := context.Background()
-	conn, err := pool.Acquire(ctx)
+	conn, err := repository.pool.Acquire(ctx)
 	if err != nil {
 		log.Println("Ошибка при открытии соединения pgx")
 		return err

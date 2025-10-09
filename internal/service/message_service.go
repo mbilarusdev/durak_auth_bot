@@ -5,7 +5,6 @@ import (
 	"log"
 
 	"github.com/mbilarusdev/durak_auth_bot/internal/client"
-	"github.com/mbilarusdev/durak_auth_bot/internal/locator"
 	"github.com/mbilarusdev/durak_auth_bot/internal/models"
 )
 
@@ -14,16 +13,19 @@ type MessageManager interface {
 	SendWithContactButton(chatID int)
 }
 
-type MessageService struct{}
+type MessageService struct {
+	tgClient client.ApiClient
+}
 
-func NewMessageService() *MessageService {
+func NewMessageService(tgClient *client.TelegramClient) *MessageService {
 	service := &MessageService{}
+	service.tgClient = tgClient
 
 	return service
 }
 
 func (service *MessageService) Send(message string, chatID int) error {
-	client := locator.Instance.Get("tg_client").(*client.TelegramClient)
+	client := service.tgClient
 	msgReq := models.SendMessageRequest{
 		ChatID: chatID,
 		Text:   message,
@@ -39,7 +41,7 @@ func (service *MessageService) Send(message string, chatID int) error {
 }
 
 func (service *MessageService) SendWithContactButton(chatID int) {
-	client := locator.Instance.Get("tg_client").(*client.TelegramClient)
+	client := service.tgClient
 	msgReq := models.SendMessageRequest{
 		ChatID: chatID,
 		Text:   "Чтобы получить временный код, отправьте свой контакт",

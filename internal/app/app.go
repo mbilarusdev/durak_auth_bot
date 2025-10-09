@@ -5,34 +5,41 @@ import (
 	"net/http"
 	"time"
 
+	"github.com/go-redis/redis/v8"
 	"github.com/gorilla/mux"
+	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/mbilarusdev/durak_auth_bot/internal/bot"
 	"github.com/mbilarusdev/durak_auth_bot/internal/client"
 	"github.com/mbilarusdev/durak_auth_bot/internal/common"
 	"github.com/mbilarusdev/durak_auth_bot/internal/endpoint"
-	"github.com/mbilarusdev/durak_auth_bot/internal/locator"
 	"github.com/mbilarusdev/durak_auth_bot/internal/repository"
 	"github.com/mbilarusdev/durak_auth_bot/internal/service"
 	"github.com/mbilarusdev/durak_network/network"
 )
 
 func Run() {
-	// Locator
-	locator.Setup()
-	locator.Instance.Register("bot_config", common.NewAuthBotConfig())
-	locator.Instance.Register("tg_client", client.NewTelegramClient())
+	// Config
+	common.NewAuthBotConfig()
+
+	// Clients
+	tgClient := client.NewTelegramClient()
+
+	// TODO: change connections
+	dbPool := &pgxpool.Pool{}
+	cacheManager := &redis.Client{}
 
 	// Repositories
-	playerRepository := repository.NewPlayerRepository()
-	codeRepository := repository.NewCodeRepository()
-	tokenRepository := repository.NewTokenRepository()
+	playerRepository := repository.NewPlayerRepository(dbPool)
+	tokenRepository := repository.NewTokenRepository(dbPool)
+	codeRepository := repository.NewCodeRepository(cacheManager)
 
 	// Services
 	codeService := service.NewCodeService(codeRepository)
-	messageService := service.NewMessageService()
+	messageService := service.NewMessageService(tgClient)
 	playerService := service.NewPlayerService(playerRepository)
 	tokenService := service.NewTokenService(tokenRepository)
-	updatesService := service.NewUpdatesService(messageService, playerService)
+	updatesHandleService := service.NewUpdatesHandleService(messageService, playerService)
+	updatesService := service.NewUpdatesService(tgClient, updatesHandleService)
 
 	// Bot
 	bot := bot.NewAuthBot(updatesService)

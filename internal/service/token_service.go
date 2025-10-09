@@ -4,7 +4,6 @@ import (
 	"fmt"
 
 	"github.com/mbilarusdev/durak_auth_bot/internal/common"
-	"github.com/mbilarusdev/durak_auth_bot/internal/locator"
 	"github.com/mbilarusdev/durak_auth_bot/internal/models"
 	"github.com/mbilarusdev/durak_auth_bot/internal/repository"
 	"github.com/mbilarusdev/jwt/jwt"
@@ -29,13 +28,12 @@ func NewTokenService(tokenRepository *repository.TokenRepository) *TokenService 
 }
 
 func (service *TokenService) FindActualByToken(token string) (*models.Token, error) {
-	config := locator.Instance.Get("bot_config").(*common.AuthBotConfig)
-	playerID := jwt.GetSubID(token, config.SecretKey)
+	playerID := jwt.GetSubID(token, common.Conf.Token)
 	return service.FindActualByPlayerID(playerID)
 }
 
 func (service *TokenService) FindActualByPlayerID(playerID uint64) (*models.Token, error) {
-	config := locator.Instance.Get("bot_config").(*common.AuthBotConfig)
+
 	finded, err := service.tokenRepository.FindOne(playerID)
 	if err != nil {
 		return nil, err
@@ -43,19 +41,21 @@ func (service *TokenService) FindActualByPlayerID(playerID uint64) (*models.Toke
 	if finded == nil {
 		return nil, nil
 	}
-	available := jwt.Check(finded.Jwt, config.SecretKey)
+	available := jwt.Check(finded.Jwt, common.Conf.SecretKey)
 	if !available && finded.Status != models.TokenBlocked {
-		service.tokenRepository.UpdateStatus(finded.ID, models.TokenExpired)
+		err := service.tokenRepository.UpdateStatus(finded.ID, models.TokenExpired)
+		if err != nil {
+			return nil, err
+		}
 		return service.tokenRepository.FindOne(playerID)
 	}
 	return finded, nil
 }
 
 func (service *TokenService) IssueToken(playerID uint64) (*models.Token, error) {
-	config := locator.Instance.Get("bot_config").(*common.AuthBotConfig)
 	newJwt := jwt.IssueShort(
-		&jwtmodels.JwtShortPayload{Iss: config.AppName, Sub: fmt.Sprint(playerID)},
-		config.SecretKey,
+		&jwtmodels.JwtShortPayload{Iss: common.AppName, Sub: fmt.Sprint(playerID)},
+		common.Conf.SecretKey,
 	)
 	newToken, err := service.tokenRepository.Insert(
 		&models.Token{PlayerID: playerID, Jwt: newJwt, Status: models.TokenAvailable},

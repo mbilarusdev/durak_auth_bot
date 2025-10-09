@@ -7,7 +7,7 @@ import (
 	"strings"
 
 	"github.com/jackc/pgx/v5/pgxpool"
-	"github.com/mbilarusdev/durak_auth_bot/internal/locator"
+	"github.com/mbilarusdev/durak_auth_bot/internal/interfaces"
 	"github.com/mbilarusdev/durak_auth_bot/internal/models"
 )
 
@@ -16,14 +16,18 @@ type PlayerProvider interface {
 	FindOne(options *models.FindOptions) (*models.Player, error)
 }
 
-type PlayerRepository struct{}
+type PlayerRepository struct {
+	pool interfaces.DBPool
+}
 
-func NewPlayerRepository() *PlayerRepository {
-	return new(PlayerRepository)
+func NewPlayerRepository(pool *pgxpool.Pool) *PlayerRepository {
+	repository := new(PlayerRepository)
+	repository.pool = pool
+	return repository
 }
 
 func (repository *PlayerRepository) Insert(player *models.Player) (*models.Player, error) {
-	pool := locator.Instance.Get("pgx_pool").(*pgxpool.Pool)
+	pool := pgxpool.Pool{}
 	ctx := context.Background()
 	conn, err := pool.Acquire(ctx)
 	if err != nil {
@@ -56,9 +60,8 @@ func (repository *PlayerRepository) Insert(player *models.Player) (*models.Playe
 }
 
 func (repository *PlayerRepository) FindOne(options *models.FindOptions) (*models.Player, error) {
-	pool := locator.Instance.Get("pgx_pool").(*pgxpool.Pool)
 	ctx := context.Background()
-	conn, err := pool.Acquire(ctx)
+	conn, err := repository.pool.Acquire(ctx)
 	if err != nil {
 		log.Println("Ошибка при открытии соединения pgx")
 		return nil, err

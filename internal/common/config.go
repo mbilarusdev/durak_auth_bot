@@ -2,24 +2,25 @@ package common
 
 import "os"
 
+var Conf *AuthBotConfig
+
 type Config interface {
 	Parse()
 }
 
 type AuthBotConfig struct {
-	AppName   string
 	SecretKey string
 	Token     string
 }
 
-func NewAuthBotConfig() *AuthBotConfig {
+func NewAuthBotConfig() {
 	config := new(AuthBotConfig)
 	config.parse()
-	return config
+	Conf = config
+
 }
 
 func (config *AuthBotConfig) parse() {
-	config.AppName = "durak"
 	config.Token = parseVar("TOKEN")
 	config.SecretKey = parseVar("SECRET_KEY")
 }

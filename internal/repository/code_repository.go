@@ -7,7 +7,12 @@ import (
 	"time"
 
 	"github.com/go-redis/redis/v8"
-	"github.com/mbilarusdev/durak_auth_bot/internal/locator"
+	"github.com/mbilarusdev/durak_auth_bot/internal/common"
+	"github.com/mbilarusdev/durak_auth_bot/internal/interfaces"
+)
+
+const (
+	cacheKey string = "code"
 )
 
 type CodeProvider interface {
@@ -16,17 +21,20 @@ type CodeProvider interface {
 	DelCode(phoneNumber string) error
 }
 
-type CodeRepository struct{}
+type CodeRepository struct {
+	rdb interfaces.CacheManager
+}
 
-func NewCodeRepository() *CodeRepository {
-	return new(CodeRepository)
+func NewCodeRepository(rdb *redis.Client) *CodeRepository {
+	repository := new(CodeRepository)
+	repository.rdb = rdb
+	return repository
 }
 
 func (repository *CodeRepository) SaveCode(phoneNumber string, code string) error {
-	client := locator.Instance.Get("redis_client").(*redis.Client)
-	_, err := client.Set(
+	_, err := repository.rdb.Set(
 		context.Background(),
-		fmt.Sprintf("auth_bot:code:%v", phoneNumber),
+		fmt.Sprintf("%v:%v:%v", common.ServiceCacheName, cacheKey, phoneNumber),
 		code,
 		time.Minute,
 	).Result()
@@ -38,10 +46,9 @@ func (repository *CodeRepository) SaveCode(phoneNumber string, code string) erro
 }
 
 func (repository *CodeRepository) GetCode(phoneNumber string) (string, error) {
-	client := locator.Instance.Get("redis_client").(*redis.Client)
-	code, err := client.Get(
+	code, err := repository.rdb.Get(
 		context.Background(),
-		fmt.Sprintf("auth_bot:code:%v", phoneNumber),
+		fmt.Sprintf("%v:%v:%v", common.ServiceCacheName, cacheKey, phoneNumber),
 	).Result()
 	if err != nil {
 		if err == redis.Nil {
@@ -55,10 +62,9 @@ func (repository *CodeRepository) GetCode(phoneNumber string) (string, error) {
 }
 
 func (repository *CodeRepository) DelCode(phoneNumber string) error {
-	client := locator.Instance.Get("redis_client").(*redis.Client)
-	_, err := client.Del(
+	_, err := repository.rdb.Del(
 		context.Background(),
-		fmt.Sprintf("auth_bot:code:%v", phoneNumber),
+		fmt.Sprintf("%v:%v:%v", common.ServiceCacheName, cacheKey, phoneNumber),
 	).Result()
 	if err != nil {
 		log.Println("Ошибка удаления кода из redis")

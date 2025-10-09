@@ -3,10 +3,8 @@ package service
 import (
 	"encoding/json"
 	"fmt"
-	"log"
 
 	"github.com/mbilarusdev/durak_auth_bot/internal/client"
-	"github.com/mbilarusdev/durak_auth_bot/internal/locator"
 	"github.com/mbilarusdev/durak_auth_bot/internal/models"
 )
 
@@ -16,66 +14,34 @@ type UpdatesManager interface {
 }
 
 type UpdatesService struct {
-	messageService MessageManager
-	playerService  PlayerManager
+	tgClient         client.ApiClient
+	updHandleService UpdatesHandleManager
 }
 
 func NewUpdatesService(
-	messageService *MessageService,
-	playerService *PlayerService,
+	tgClient *client.TelegramClient,
+	updHandleService *UpdatesHandleService,
 ) *UpdatesService {
 	service := &UpdatesService{}
-	service.messageService = messageService
-	service.playerService = playerService
+	service.tgClient = tgClient
+	service.updHandleService = updHandleService
+
 	return service
 }
 
 func (service *UpdatesService) Process(updates []models.Update) {
-	errMsg := "Произошла ошибка, попробуйте позже"
 	for _, upd := range updates {
-		isMsgWithContact := upd.Message != nil && upd.Message.Contact != nil
-		isStartMsg := upd.Message != nil && upd.Message.Text == "/start"
-		if isMsgWithContact {
-			log.Printf(
-				"Контакт получен: Имя=%s, Телефон=%s\n",
-				upd.Message.Contact.FirstName,
-				upd.Message.Contact.PhoneNumber,
-			)
-			player, err := service.playerService.FindByPhone(upd.Message.Contact.PhoneNumber)
-			if err != nil {
-				service.messageService.Send(errMsg, upd.Message.Chat.ID)
-				continue
-			}
-			if player != nil {
-				service.messageService.Send("Ваш контакт уже был сохранен!", upd.Message.Chat.ID)
-				continue
-			}
-			if _, err = service.playerService.CreatePlayer(
-				upd.Message.Contact.PhoneNumber,
-				upd.Message.Chat.ID,
-			); err != nil {
-				service.messageService.Send(errMsg, upd.Message.Chat.ID)
-				continue
-			}
-			service.messageService.Send("Ваш контакт успешно сохранен!", upd.Message.Chat.ID)
+		if upd.Message != nil && upd.Message.Text == "/start" {
+			service.updHandleService.HandleStartMsg(upd)
 		}
-		if isStartMsg {
-			player, err := service.playerService.FindByChatID(upd.Message.Chat.ID)
-			if err != nil {
-				service.messageService.Send(errMsg, upd.Message.Chat.ID)
-				continue
-			}
-			if player == nil {
-				service.messageService.Send("Ваш контакт уже был сохранен!", upd.Message.Chat.ID)
-				continue
-			}
-			service.messageService.SendWithContactButton(upd.Message.Chat.ID)
+		if upd.Message != nil && upd.Message.Contact != nil {
+			service.updHandleService.HandleMsgWithContact(upd)
 		}
 	}
 }
 
 func (service *UpdatesService) Get(offset int) ([]models.Update, error) {
-	client := locator.Instance.Get("tg_client").(*client.TelegramClient)
+	client := service.tgClient
 	getURL := fmt.Sprintf("getUpdates?offset=%d&timeout=10", offset+1)
 	rawData, err := client.Get(getURL)
 	if err != nil {

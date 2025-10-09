@@ -8,7 +8,6 @@ import (
 	"net/http"
 
 	"github.com/mbilarusdev/durak_auth_bot/internal/common"
-	"github.com/mbilarusdev/durak_auth_bot/internal/locator"
 	"github.com/mbilarusdev/durak_auth_bot/internal/models"
 )
 
@@ -28,8 +27,8 @@ func NewTelegramClient() *TelegramClient {
 }
 
 func (tgClient *TelegramClient) Get(method string) ([]byte, error) {
-	config := locator.Instance.Get("bot_config").(*common.AuthBotConfig)
-	url := fmt.Sprintf(tgApiUrl+"%s/%s", config.Token, method)
+
+	url := fmt.Sprintf(tgApiUrl+"%s/%s", common.Conf.Token, method)
 	resp, err := http.Get(url)
 	if err != nil {
 		return nil, err
@@ -40,8 +39,7 @@ func (tgClient *TelegramClient) Get(method string) ([]byte, error) {
 }
 
 func (tgClient *TelegramClient) Post(method string, data []byte) (*models.SendResponse, error) {
-	config := locator.Instance.Get("bot_config").(*common.AuthBotConfig)
-	url := fmt.Sprintf(tgApiUrl+"%s/%s", config.Token, method)
+	url := fmt.Sprintf(tgApiUrl+"%s/%s", common.Conf.Token, method)
 	req, err := http.NewRequest("POST", url, bytes.NewBuffer(data))
 	if err != nil {
 		return nil, err
