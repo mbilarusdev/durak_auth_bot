@@ -3,6 +3,7 @@ package repository
 import (
 	"context"
 	"database/sql"
+	"fmt"
 	"log"
 	"strings"
 
@@ -11,7 +12,7 @@ import (
 )
 
 type PlayerProvider interface {
-	Insert(player *models.Player) (*models.Player, error)
+	Insert(player *models.Player) (uint64, error)
 	FindOne(options *models.FindOptions) (*models.Player, error)
 }
 
@@ -25,12 +26,12 @@ func NewPlayerRepository(pool interfaces.DBPool) *PlayerRepository {
 	return repository
 }
 
-func (repository *PlayerRepository) Insert(player *models.Player) (*models.Player, error) {
+func (repository *PlayerRepository) Insert(player *models.Player) (uint64, error) {
 	ctx := context.Background()
 	conn, err := repository.pool.Acquire(ctx)
 	if err != nil {
 		log.Println("Ошибка при открытии соединения pgx")
-		return nil, err
+		return 0, err
 	}
 	defer conn.Release()
 	var playerID uint64
@@ -43,18 +44,10 @@ func (repository *PlayerRepository) Insert(player *models.Player) (*models.Playe
 		player.CreatedAt,
 	).Scan(&playerID); err != nil {
 		log.Println("Ошибка при вставке нового игрока")
-		return nil, err
+		return 0, err
 	}
-	newPlayer := new(models.Player)
-	if err := conn.QueryRow(ctx, "SELECT * FROM players WHERE id = $1 LIMIT 1;", playerID).Scan(newPlayer); err != nil {
-		if err == sql.ErrNoRows {
-			log.Println("Не найдено игрока с данным идентификатором: ", playerID)
-			return nil, nil
-		}
-		log.Println("Ошибка при выборке нового игрока")
-		return nil, err
-	}
-	return newPlayer, nil
+
+	return playerID, nil
 }
 
 func (repository *PlayerRepository) FindOne(options *models.FindOptions) (*models.Player, error) {
@@ -67,14 +60,23 @@ func (repository *PlayerRepository) FindOne(options *models.FindOptions) (*model
 	defer conn.Release()
 	query := "SELECT * FROM players WHERE "
 	args := []any{}
+	argNum := 0
+
+	if options.ID != 0 {
+		argNum += 1
+		query += fmt.Sprintf("id = $%v AND ", argNum)
+		args = append(args, options.ID)
+	}
 
 	if options.PhoneNumber != "" {
-		query += "phone_number = $1 AND "
+		argNum += 1
+		query += fmt.Sprintf("phone_number = $%v AND ", argNum)
 		args = append(args, options.PhoneNumber)
 	}
 
 	if options.ChatID != 0 {
-		query += "chat_id = $2 AND "
+		argNum += 1
+		query += fmt.Sprintf("chat_id = $%v AND ", argNum)
 		args = append(args, options.ChatID)
 	}
 
@@ -87,11 +89,12 @@ func (repository *PlayerRepository) FindOne(options *models.FindOptions) (*model
 	).Scan(findedPlayer); err != nil {
 		if err == sql.ErrNoRows {
 			log.Printf(
-				"Не найдено игрока с номером телефона = %v, и/или айди чата = %v",
+				"Не найдено игрока с айди = %v и/или, номером телефона = %v, и/или айди чата = %v",
+				options.ID,
 				options.PhoneNumber,
 				options.ChatID,
 			)
-			return nil, nil
+			return nil, err
 		}
 		log.Println("Ошибка при поиске игрока по номеру телефона")
 		return nil, err

@@ -7,6 +7,7 @@ import (
 
 	"github.com/go-redis/redis/v8"
 	"github.com/jackc/pgx/v5/pgxpool"
+	"github.com/mbilarusdev/durak_auth_bot/internal/adapter"
 	"github.com/mbilarusdev/durak_auth_bot/internal/bot"
 	"github.com/mbilarusdev/durak_auth_bot/internal/client"
 	"github.com/mbilarusdev/durak_auth_bot/internal/common"
@@ -27,8 +28,8 @@ func Run() {
 	cacheManager := &redis.Client{}
 
 	// Repositories
-	playerRepository := repository.NewPlayerRepository(dbPool)
-	tokenRepository := repository.NewTokenRepository(dbPool)
+	playerRepository := repository.NewPlayerRepository(adapter.NewAdapterPool(dbPool))
+	tokenRepository := repository.NewTokenRepository(adapter.NewAdapterPool(dbPool))
 	codeRepository := repository.NewCodeRepository(cacheManager)
 
 	// Services

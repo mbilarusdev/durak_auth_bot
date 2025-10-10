@@ -1,6 +1,7 @@
 package service
 
 import (
+	"database/sql"
 	"time"
 
 	"github.com/mbilarusdev/durak_auth_bot/internal/models"
@@ -40,11 +41,19 @@ func (service *PlayerService) FindByChatID(chatID int) (*models.Player, error) {
 }
 
 func (service *PlayerService) CreatePlayer(phone string, chatID int) (*models.Player, error) {
-	player, err := service.playerRepository.Insert(&models.Player{
+	newPlayerID, err := service.playerRepository.Insert(&models.Player{
 		PhoneNumber: phone,
 		ChatID:      chatID,
 		CreatedAt:   time.Now().UTC().UnixMilli(),
 	})
+	if err != nil {
+		return nil, err
+	}
+
+	player, err := service.playerRepository.FindOne(&models.FindOptions{ID: newPlayerID})
+	if err != nil && err != sql.ErrNoRows {
+		return nil, err
+	}
 
 	return player, err
 }
