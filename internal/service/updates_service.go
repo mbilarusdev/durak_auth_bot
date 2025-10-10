@@ -14,13 +14,13 @@ type UpdatesManager interface {
 }
 
 type UpdatesService struct {
-	tgClient         client.ApiClient
+	tgClient         client.TgNetworkManager
 	updHandleService UpdatesHandleManager
 }
 
 func NewUpdatesService(
-	tgClient *client.TelegramClient,
-	updHandleService *UpdatesHandleService,
+	tgClient client.TgNetworkManager,
+	updHandleService UpdatesHandleManager,
 ) *UpdatesService {
 	service := &UpdatesService{}
 	service.tgClient = tgClient

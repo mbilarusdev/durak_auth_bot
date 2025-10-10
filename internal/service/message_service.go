@@ -14,10 +14,10 @@ type MessageManager interface {
 }
 
 type MessageService struct {
-	tgClient client.ApiClient
+	tgClient client.TgNetworkManager
 }
 
-func NewMessageService(tgClient *client.TelegramClient) *MessageService {
+func NewMessageService(tgClient client.TgNetworkManager) *MessageService {
 	service := &MessageService{}
 	service.tgClient = tgClient
 

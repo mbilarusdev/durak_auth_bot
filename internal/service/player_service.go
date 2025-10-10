@@ -17,7 +17,7 @@ type PlayerService struct {
 	playerRepository repository.PlayerProvider
 }
 
-func NewPlayerService(playerRepository *repository.PlayerRepository) *PlayerService {
+func NewPlayerService(playerRepository repository.PlayerProvider) *PlayerService {
 	service := new(PlayerService)
 	service.playerRepository = playerRepository
 	return service

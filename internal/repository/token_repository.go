@@ -5,7 +5,6 @@ import (
 	"database/sql"
 	"log"
 
-	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/mbilarusdev/durak_auth_bot/internal/interfaces"
 	"github.com/mbilarusdev/durak_auth_bot/internal/models"
 )
@@ -20,7 +19,7 @@ type TokenRepository struct {
 	pool interfaces.DBPool
 }
 
-func NewTokenRepository(pool *pgxpool.Pool) *TokenRepository {
+func NewTokenRepository(pool interfaces.DBPool) *TokenRepository {
 	repository := new(TokenRepository)
 	repository.pool = pool
 

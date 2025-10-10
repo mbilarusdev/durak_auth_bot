@@ -25,7 +25,7 @@ type CodeRepository struct {
 	rdb interfaces.CacheManager
 }
 
-func NewCodeRepository(rdb *redis.Client) *CodeRepository {
+func NewCodeRepository(rdb interfaces.CacheManager) *CodeRepository {
 	repository := new(CodeRepository)
 	repository.rdb = rdb
 	return repository

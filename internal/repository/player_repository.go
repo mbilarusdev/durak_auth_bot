@@ -6,7 +6,6 @@ import (
 	"log"
 	"strings"
 
-	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/mbilarusdev/durak_auth_bot/internal/interfaces"
 	"github.com/mbilarusdev/durak_auth_bot/internal/models"
 )
@@ -20,16 +19,15 @@ type PlayerRepository struct {
 	pool interfaces.DBPool
 }
 
-func NewPlayerRepository(pool *pgxpool.Pool) *PlayerRepository {
+func NewPlayerRepository(pool interfaces.DBPool) *PlayerRepository {
 	repository := new(PlayerRepository)
 	repository.pool = pool
 	return repository
 }
 
 func (repository *PlayerRepository) Insert(player *models.Player) (*models.Player, error) {
-	pool := pgxpool.Pool{}
 	ctx := context.Background()
-	conn, err := pool.Acquire(ctx)
+	conn, err := repository.pool.Acquire(ctx)
 	if err != nil {
 		log.Println("Ошибка при открытии соединения pgx")
 		return nil, err
@@ -38,7 +36,7 @@ func (repository *PlayerRepository) Insert(player *models.Player) (*models.Playe
 	var playerID uint64
 	if err := conn.QueryRow(
 		ctx,
-		"INSERT INTO players (username, phone_number, chat_id, created_at) VALUES ($1, $2, $3) RETURNING id;",
+		"INSERT INTO players (username, phone_number, chat_id, created_at) VALUES ($1, $2, $3, $4) RETURNING id;",
 		player.Username,
 		player.PhoneNumber,
 		player.ChatID,

@@ -21,7 +21,7 @@ type TokenService struct {
 	tokenRepository repository.TokenProvider
 }
 
-func NewTokenService(tokenRepository *repository.TokenRepository) *TokenService {
+func NewTokenService(tokenRepository repository.TokenProvider) *TokenService {
 	service := new(TokenService)
 	service.tokenRepository = tokenRepository
 	return service

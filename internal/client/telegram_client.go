@@ -15,7 +15,7 @@ const (
 	tgApiUrl string = "https://api.telegram.org/bot"
 )
 
-type ApiClient interface {
+type TgNetworkManager interface {
 	Get(method string) ([]byte, error)
 	Post(method string, data []byte) (*models.SendResponse, error)
 }

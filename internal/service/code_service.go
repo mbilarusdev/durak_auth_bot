@@ -14,7 +14,7 @@ type CodeService struct {
 	codeRepository repository.CodeProvider
 }
 
-func NewCodeService(codeRepository *repository.CodeRepository) *CodeService {
+func NewCodeService(codeRepository repository.CodeProvider) *CodeService {
 	service := new(CodeService)
 	service.codeRepository = codeRepository
 	return service

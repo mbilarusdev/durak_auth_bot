@@ -17,8 +17,8 @@ type UpdatesHandleService struct {
 }
 
 func NewUpdatesHandleService(
-	msgService *MessageService,
-	playerService *PlayerService,
+	msgService MessageManager,
+	playerService PlayerManager,
 ) *UpdatesHandleService {
 	updHandleService := new(UpdatesHandleService)
 	updHandleService.msgService = msgService
