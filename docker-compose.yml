@@ -1,0 +1,17 @@
+services:
+  auth_bot:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "8080:8080"
+    environment:
+      TOKEN: ${TOKEN}
+      SECRET_KEY: ${SECRET_KEY}
+    networks:
+      - backend
+
+networks:
+  backend:
+    external: true
+    name: durak_backend
