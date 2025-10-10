@@ -2,6 +2,7 @@ package service
 
 import (
 	"fmt"
+	"time"
 
 	"github.com/mbilarusdev/durak_auth_bot/internal/common"
 	"github.com/mbilarusdev/durak_auth_bot/internal/models"
@@ -54,7 +55,11 @@ func (service *TokenService) FindActualByPlayerID(playerID uint64) (*models.Toke
 
 func (service *TokenService) IssueToken(playerID uint64) (*models.Token, error) {
 	newJwt := jwt.IssueShort(
-		&jwtmodels.JwtShortPayload{Iss: common.AppName, Sub: fmt.Sprint(playerID)},
+		&jwtmodels.JwtShortPayload{
+			Iss:      common.AppName,
+			Sub:      fmt.Sprint(playerID),
+			Duration: time.Hour * 24 * 30 * 6,
+		},
 		common.Conf.SecretKey,
 	)
 	newToken, err := service.tokenRepository.Insert(
