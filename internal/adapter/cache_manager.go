@@ -19,7 +19,7 @@ func NewCacheManagerAdapter(manager *redis.Client) interfaces.CacheManager {
 func (c *AdapterCacheManager) Set(
 	ctx context.Context,
 	key string,
-	value interface{},
+	value any,
 	expiration time.Duration,
 ) interfaces.CacheStatusCmd {
 	cmd := c.manager.Set(ctx, key, value, expiration)

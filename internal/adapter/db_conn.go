@@ -14,7 +14,7 @@ type AdapterConn struct {
 func (a *AdapterConn) QueryRow(
 	ctx context.Context,
 	query string,
-	args ...interface{},
+	args ...any,
 ) interfaces.DBRow {
 	return a.conn.QueryRow(ctx, query, args...)
 }
