@@ -22,17 +22,17 @@ func NewCodeService(codeRepository repository.CodeProvider) *CodeService {
 
 func (service *CodeService) CreateCode(phone string) (string, error) {
 	smsCode := utils.GenerateRandomCode()
-	return smsCode, service.codeRepository.SaveCode(phone, smsCode)
+	return smsCode, service.codeRepository.Save(phone, smsCode)
 }
 
 func (service *CodeService) ConsumeIsRightCode(phone string, confirmCode string) (bool, error) {
-	code, err := service.codeRepository.GetCode(phone)
+	code, err := service.codeRepository.Get(phone)
 	if err != nil {
 		return false, err
 	}
 	isRightCode := code == confirmCode
 	if isRightCode {
-		service.codeRepository.DelCode(phone)
+		service.codeRepository.Del(phone)
 	}
 	return isRightCode, nil
 }

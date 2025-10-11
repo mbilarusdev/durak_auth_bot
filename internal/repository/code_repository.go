@@ -12,13 +12,13 @@ import (
 )
 
 const (
-	cacheKey string = "code"
+	CodeRepoCacheKey string = "code"
 )
 
 type CodeProvider interface {
-	SaveCode(phoneNumber string, code string) error
-	GetCode(phoneNumber string) (string, error)
-	DelCode(phoneNumber string) error
+	Save(phoneNumber string, code string) error
+	Get(phoneNumber string) (string, error)
+	Del(phoneNumber string) error
 }
 
 type CodeRepository struct {
@@ -31,10 +31,10 @@ func NewCodeRepository(rdb interfaces.CacheManager) *CodeRepository {
 	return repository
 }
 
-func (repository *CodeRepository) SaveCode(phoneNumber string, code string) error {
+func (repository *CodeRepository) Save(phoneNumber string, code string) error {
 	_, err := repository.rdb.Set(
 		context.Background(),
-		fmt.Sprintf("%v:%v:%v", common.ServiceCacheName, cacheKey, phoneNumber),
+		fmt.Sprintf("%v:%v:%v", common.ServiceCacheName, CodeRepoCacheKey, phoneNumber),
 		code,
 		time.Minute,
 	).Result()
@@ -45,14 +45,15 @@ func (repository *CodeRepository) SaveCode(phoneNumber string, code string) erro
 	return nil
 }
 
-func (repository *CodeRepository) GetCode(phoneNumber string) (string, error) {
+func (repository *CodeRepository) Get(phoneNumber string) (string, error) {
 	code, err := repository.rdb.Get(
 		context.Background(),
-		fmt.Sprintf("%v:%v:%v", common.ServiceCacheName, cacheKey, phoneNumber),
+		fmt.Sprintf("%v:%v:%v", common.ServiceCacheName, CodeRepoCacheKey, phoneNumber),
 	).Result()
 	if err != nil {
 		if err == redis.Nil {
-			return "", nil
+			log.Printf("Не найдено токена с номером телефона %v", phoneNumber)
+			return "", err
 		}
 		log.Println("Ошибка сохранения кода в redis")
 		return "", err
@@ -61,12 +62,16 @@ func (repository *CodeRepository) GetCode(phoneNumber string) (string, error) {
 	return code, nil
 }
 
-func (repository *CodeRepository) DelCode(phoneNumber string) error {
+func (repository *CodeRepository) Del(phoneNumber string) error {
 	_, err := repository.rdb.Del(
 		context.Background(),
-		fmt.Sprintf("%v:%v:%v", common.ServiceCacheName, cacheKey, phoneNumber),
+		fmt.Sprintf("%v:%v:%v", common.ServiceCacheName, CodeRepoCacheKey, phoneNumber),
 	).Result()
 	if err != nil {
+		if err == redis.Nil {
+			log.Printf("Не найдено токена с номером телефона %v", phoneNumber)
+			return err
+		}
 		log.Println("Ошибка удаления кода из redis")
 		return err
 	}
