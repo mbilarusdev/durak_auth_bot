@@ -13,7 +13,7 @@ import (
 
 type PlayerProvider interface {
 	Insert(player *models.Player) (uint64, error)
-	FindOne(options *models.FindOptions) (*models.Player, error)
+	FindOne(options *models.PlayerFindOptions) (*models.Player, error)
 }
 
 type PlayerRepository struct {
@@ -50,7 +50,9 @@ func (repository *PlayerRepository) Insert(player *models.Player) (uint64, error
 	return playerID, nil
 }
 
-func (repository *PlayerRepository) FindOne(options *models.FindOptions) (*models.Player, error) {
+func (repository *PlayerRepository) FindOne(
+	options *models.PlayerFindOptions,
+) (*models.Player, error) {
 	ctx := context.Background()
 	conn, err := repository.pool.Acquire(ctx)
 	if err != nil {
@@ -88,12 +90,7 @@ func (repository *PlayerRepository) FindOne(options *models.FindOptions) (*model
 		args,
 	).Scan(findedPlayer); err != nil {
 		if err == sql.ErrNoRows {
-			log.Printf(
-				"Не найдено игрока с айди = %v и/или, номером телефона = %v, и/или айди чата = %v",
-				options.ID,
-				options.PhoneNumber,
-				options.ChatID,
-			)
+			log.Printf("Не найдено игрока по данному поисковому запросу")
 			return nil, err
 		}
 		log.Println("Ошибка при поиске игрока по номеру телефона")

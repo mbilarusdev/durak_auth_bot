@@ -30,7 +30,7 @@ func Run() {
 	// Repositories
 	playerRepository := repository.NewPlayerRepository(adapter.NewAdapterPool(dbPool))
 	tokenRepository := repository.NewTokenRepository(adapter.NewAdapterPool(dbPool))
-	codeRepository := repository.NewCodeRepository(cacheManager)
+	codeRepository := repository.NewCodeRepository(adapter.NewCacheManagerAdapter(cacheManager))
 
 	// Services
 	codeService := service.NewCodeService(codeRepository)

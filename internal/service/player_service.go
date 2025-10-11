@@ -26,7 +26,7 @@ func NewPlayerService(playerRepository repository.PlayerProvider) *PlayerService
 
 func (service *PlayerService) FindByPhone(phone string) (*models.Player, error) {
 	player, err := service.playerRepository.FindOne(
-		&models.FindOptions{PhoneNumber: phone},
+		&models.PlayerFindOptions{PhoneNumber: phone},
 	)
 
 	return player, err
@@ -34,7 +34,7 @@ func (service *PlayerService) FindByPhone(phone string) (*models.Player, error) 
 
 func (service *PlayerService) FindByChatID(chatID int) (*models.Player, error) {
 	player, err := service.playerRepository.FindOne(
-		&models.FindOptions{ChatID: chatID},
+		&models.PlayerFindOptions{ChatID: chatID},
 	)
 
 	return player, err
@@ -50,7 +50,7 @@ func (service *PlayerService) CreatePlayer(phone string, chatID int) (*models.Pl
 		return nil, err
 	}
 
-	player, err := service.playerRepository.FindOne(&models.FindOptions{ID: newPlayerID})
+	player, err := service.playerRepository.FindOne(&models.PlayerFindOptions{ID: newPlayerID})
 	if err != nil && err != sql.ErrNoRows {
 		return nil, err
 	}

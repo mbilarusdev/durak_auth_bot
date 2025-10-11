@@ -20,10 +20,10 @@ func TestPlayerRepository(t *testing.T) {
 		ChatID:      50,
 		CreatedAt:   time.Now().UTC().UnixMilli(),
 	}
-	pool := interfaces.NewMockDBPool(t)
-	conn := interfaces.NewMockDBConn(t)
-	row := interfaces.NewMockDBRow(t)
 	t.Run("Player Insert with success", func(t *testing.T) {
+		pool := interfaces.NewMockDBPool(t)
+		conn := interfaces.NewMockDBConn(t)
+		row := interfaces.NewMockDBRow(t)
 		pool.On("Acquire", mock.Anything).Once().Return(conn, nil)
 		conn.On("Release").Once()
 		conn.On(
@@ -40,13 +40,16 @@ func TestPlayerRepository(t *testing.T) {
 
 		repository := repository.NewPlayerRepository(pool)
 
-		_, err := repository.Insert(player)
+		res, err := repository.Insert(player)
 
-		if err != nil {
+		if res != playerID || err != nil {
 			t.Errorf("Insert() failed: %v", err)
 		}
 	})
 	t.Run("Player FindOne by ID with success", func(t *testing.T) {
+		pool := interfaces.NewMockDBPool(t)
+		conn := interfaces.NewMockDBConn(t)
+		row := interfaces.NewMockDBRow(t)
 		pool.On("Acquire", mock.Anything).Once().Return(conn, nil)
 		conn.On("Release").Once()
 		conn.On(
@@ -63,7 +66,7 @@ func TestPlayerRepository(t *testing.T) {
 
 		repository := repository.NewPlayerRepository(pool)
 
-		_, err := repository.FindOne(&models.FindOptions{ID: playerID})
+		_, err := repository.FindOne(&models.PlayerFindOptions{ID: playerID})
 
 		if err != nil {
 			t.Errorf("FindOne() by ID failed: %v", err)
@@ -71,6 +74,9 @@ func TestPlayerRepository(t *testing.T) {
 	})
 
 	t.Run("Player FindOne by ChatID with success", func(t *testing.T) {
+		pool := interfaces.NewMockDBPool(t)
+		conn := interfaces.NewMockDBConn(t)
+		row := interfaces.NewMockDBRow(t)
 		pool.On("Acquire", mock.Anything).Once().Return(conn, nil)
 		conn.On("Release").Once()
 		conn.On(
@@ -87,7 +93,7 @@ func TestPlayerRepository(t *testing.T) {
 
 		repository := repository.NewPlayerRepository(pool)
 
-		_, err := repository.FindOne(&models.FindOptions{ChatID: player.ChatID})
+		_, err := repository.FindOne(&models.PlayerFindOptions{ChatID: player.ChatID})
 
 		if err != nil {
 			t.Errorf("FindOne() by ChatID failed: %v", err)
@@ -95,6 +101,9 @@ func TestPlayerRepository(t *testing.T) {
 	})
 
 	t.Run("Player FindOne by phone number with success", func(t *testing.T) {
+		pool := interfaces.NewMockDBPool(t)
+		conn := interfaces.NewMockDBConn(t)
+		row := interfaces.NewMockDBRow(t)
 		pool.On("Acquire", mock.Anything).Once().Return(conn, nil)
 		conn.On("Release").Once()
 		conn.On(
@@ -111,7 +120,7 @@ func TestPlayerRepository(t *testing.T) {
 
 		repository := repository.NewPlayerRepository(pool)
 
-		_, err := repository.FindOne(&models.FindOptions{PhoneNumber: player.PhoneNumber})
+		_, err := repository.FindOne(&models.PlayerFindOptions{PhoneNumber: player.PhoneNumber})
 
 		if err != nil {
 			t.Errorf("FindOne() by PhoneNumber failed: %v", err)
@@ -119,6 +128,9 @@ func TestPlayerRepository(t *testing.T) {
 	})
 
 	t.Run("Player FindOne by all options with success", func(t *testing.T) {
+		pool := interfaces.NewMockDBPool(t)
+		conn := interfaces.NewMockDBConn(t)
+		row := interfaces.NewMockDBRow(t)
 		pool.On("Acquire", mock.Anything).Once().Return(conn, nil)
 		conn.On("Release").Once()
 		conn.On(
@@ -136,7 +148,7 @@ func TestPlayerRepository(t *testing.T) {
 		repository := repository.NewPlayerRepository(pool)
 
 		_, err := repository.FindOne(
-			&models.FindOptions{
+			&models.PlayerFindOptions{
 				ID:          playerID,
 				PhoneNumber: player.PhoneNumber,
 				ChatID:      player.ChatID,
@@ -144,11 +156,14 @@ func TestPlayerRepository(t *testing.T) {
 		)
 
 		if err != nil {
-			t.Errorf("FindOne() by ID failed: %v", err)
+			t.Errorf("FindOne() by all options failed: %v", err)
 		}
 	})
 
 	t.Run("Player FindOne by all options when not finded", func(t *testing.T) {
+		pool := interfaces.NewMockDBPool(t)
+		conn := interfaces.NewMockDBConn(t)
+		row := interfaces.NewMockDBRow(t)
 		pool.On("Acquire", mock.Anything).Once().Return(conn, nil)
 		conn.On("Release").Once()
 		conn.On(
@@ -166,7 +181,7 @@ func TestPlayerRepository(t *testing.T) {
 		repository := repository.NewPlayerRepository(pool)
 
 		_, err := repository.FindOne(
-			&models.FindOptions{
+			&models.PlayerFindOptions{
 				ID:          playerID,
 				PhoneNumber: player.PhoneNumber,
 				ChatID:      player.ChatID,

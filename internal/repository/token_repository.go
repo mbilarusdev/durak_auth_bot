@@ -3,15 +3,17 @@ package repository
 import (
 	"context"
 	"database/sql"
+	"fmt"
 	"log"
+	"strings"
 
 	"github.com/mbilarusdev/durak_auth_bot/internal/interfaces"
 	"github.com/mbilarusdev/durak_auth_bot/internal/models"
 )
 
 type TokenProvider interface {
-	Insert(token *models.Token) (*models.Token, error)
-	FindOne(playerID uint64) (*models.Token, error)
+	Insert(token *models.Token) (uint64, error)
+	FindOne(options *models.TokenFindOptions) (*models.Token, error)
 	UpdateStatus(ID uint64, status string) error
 }
 
@@ -26,37 +28,31 @@ func NewTokenRepository(pool interfaces.DBPool) *TokenRepository {
 	return repository
 }
 
-func (repository *TokenRepository) Insert(token *models.Token) (*models.Token, error) {
+func (repository *TokenRepository) Insert(token *models.Token) (uint64, error) {
 	ctx := context.Background()
 	conn, err := repository.pool.Acquire(ctx)
 	if err != nil {
 		log.Println("Ошибка при открытии соединения pgx")
-		return nil, err
+		return 0, err
 	}
 	defer conn.Release()
 	var tokenID uint64
 	if err := conn.QueryRow(
 		ctx,
-		"INSERT INTO tokens (jwt, player_id) VALUES ($1, $2) RETURNING id;",
+		"INSERT INTO tokens (jwt, player_id, status) VALUES ($1, $2, $3) RETURNING id;",
 		token.Jwt,
 		token.PlayerID,
+		token.Status,
 	).Scan(&tokenID); err != nil {
 		log.Println("Ошибка при вставке нового токена")
-		return nil, err
+		return 0, err
 	}
-	newToken := new(models.Token)
-	if err := conn.QueryRow(ctx, "SELECT * FROM tokens WHERE id = $1 LIMIT 1;", tokenID).Scan(newToken); err != nil {
-		if err == sql.ErrNoRows {
-			log.Println("Не найдено токена с данным идентификатором: ", tokenID)
-			return nil, nil
-		}
-		log.Println("Ошибка при выборке нового токена")
-		return nil, err
-	}
-	return newToken, nil
+	return tokenID, nil
 }
 
-func (repository *TokenRepository) FindOne(playerID uint64) (*models.Token, error) {
+func (repository *TokenRepository) FindOne(
+	options *models.TokenFindOptions,
+) (*models.Token, error) {
 	ctx := context.Background()
 	conn, err := repository.pool.Acquire(ctx)
 	if err != nil {
@@ -64,11 +60,28 @@ func (repository *TokenRepository) FindOne(playerID uint64) (*models.Token, erro
 		return nil, err
 	}
 	defer conn.Release()
+	query := "SELECT * FROM tokens WHERE "
+	args := []any{}
+	argNum := 0
+
+	if options.ID != 0 {
+		argNum += 1
+		query += fmt.Sprintf("id = $%v AND ", argNum)
+		args = append(args, options.ID)
+	}
+
+	if options.PlayerID != 0 {
+		argNum += 1
+		query += fmt.Sprintf("player_id = $%v AND ", argNum)
+		args = append(args, options.PlayerID)
+	}
+
+	query = strings.TrimSuffix(query, "AND ") + "LIMIT 1;"
 	findedToken := new(models.Token)
-	if err := conn.QueryRow(ctx, "SELECT * FROM tokens WHERE player_id = $1 LIMIT 1;", playerID).Scan(findedToken); err != nil {
+	if err := conn.QueryRow(ctx, query, args).Scan(findedToken); err != nil {
 		if err == sql.ErrNoRows {
-			log.Println("Не найдено токена для игрока с данным ID: ", playerID)
-			return nil, nil
+			log.Println("Не найдено токена по данному поисковому запросу")
+			return nil, err
 		}
 		log.Println("Ошибка при поиске токена")
 		return nil, err
@@ -84,11 +97,10 @@ func (repository *TokenRepository) UpdateStatus(ID uint64, status string) error 
 		return err
 	}
 	defer conn.Release()
-	updatedToken := new(models.Token)
-	if err := conn.QueryRow(ctx, "UPDATE tokens SET status = $1 WHERE id = $2;", status, ID).Scan(updatedToken); err != nil {
+	if err := conn.QueryRow(ctx, "UPDATE tokens SET status = $1 WHERE id = $2;", status, ID).Scan(); err != nil {
 		if err == sql.ErrNoRows {
 			log.Println("Не найдено токена с данным id: ", ID)
-			return nil
+			return err
 		}
 		log.Println("Ошибка при обновлении токена")
 		return err

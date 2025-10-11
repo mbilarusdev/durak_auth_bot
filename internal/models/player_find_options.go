@@ -1,6 +1,6 @@
 package models
 
-type FindOptions struct {
+type PlayerFindOptions struct {
 	ID          uint64
 	PhoneNumber string
 	ChatID      int

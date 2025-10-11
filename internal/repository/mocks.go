@@ -232,7 +232,7 @@ func (_m *MockPlayerProvider) EXPECT() *MockPlayerProvider_Expecter {
 }
 
 // FindOne provides a mock function for the type MockPlayerProvider
-func (_mock *MockPlayerProvider) FindOne(options *models.FindOptions) (*models.Player, error) {
+func (_mock *MockPlayerProvider) FindOne(options *models.PlayerFindOptions) (*models.Player, error) {
 	ret := _mock.Called(options)
 
 	if len(ret) == 0 {
@@ -241,17 +241,17 @@ func (_mock *MockPlayerProvider) FindOne(options *models.FindOptions) (*models.P
 
 	var r0 *models.Player
 	var r1 error
-	if returnFunc, ok := ret.Get(0).(func(*models.FindOptions) (*models.Player, error)); ok {
+	if returnFunc, ok := ret.Get(0).(func(*models.PlayerFindOptions) (*models.Player, error)); ok {
 		return returnFunc(options)
 	}
-	if returnFunc, ok := ret.Get(0).(func(*models.FindOptions) *models.Player); ok {
+	if returnFunc, ok := ret.Get(0).(func(*models.PlayerFindOptions) *models.Player); ok {
 		r0 = returnFunc(options)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).(*models.Player)
 		}
 	}
-	if returnFunc, ok := ret.Get(1).(func(*models.FindOptions) error); ok {
+	if returnFunc, ok := ret.Get(1).(func(*models.PlayerFindOptions) error); ok {
 		r1 = returnFunc(options)
 	} else {
 		r1 = ret.Error(1)
@@ -265,16 +265,16 @@ type MockPlayerProvider_FindOne_Call struct {
 }
 
 // FindOne is a helper method to define mock.On call
-//   - options *models.FindOptions
+//   - options *models.PlayerFindOptions
 func (_e *MockPlayerProvider_Expecter) FindOne(options interface{}) *MockPlayerProvider_FindOne_Call {
 	return &MockPlayerProvider_FindOne_Call{Call: _e.mock.On("FindOne", options)}
 }
 
-func (_c *MockPlayerProvider_FindOne_Call) Run(run func(options *models.FindOptions)) *MockPlayerProvider_FindOne_Call {
+func (_c *MockPlayerProvider_FindOne_Call) Run(run func(options *models.PlayerFindOptions)) *MockPlayerProvider_FindOne_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		var arg0 *models.FindOptions
+		var arg0 *models.PlayerFindOptions
 		if args[0] != nil {
-			arg0 = args[0].(*models.FindOptions)
+			arg0 = args[0].(*models.PlayerFindOptions)
 		}
 		run(
 			arg0,
@@ -288,30 +288,28 @@ func (_c *MockPlayerProvider_FindOne_Call) Return(player *models.Player, err err
 	return _c
 }
 
-func (_c *MockPlayerProvider_FindOne_Call) RunAndReturn(run func(options *models.FindOptions) (*models.Player, error)) *MockPlayerProvider_FindOne_Call {
+func (_c *MockPlayerProvider_FindOne_Call) RunAndReturn(run func(options *models.PlayerFindOptions) (*models.Player, error)) *MockPlayerProvider_FindOne_Call {
 	_c.Call.Return(run)
 	return _c
 }
 
 // Insert provides a mock function for the type MockPlayerProvider
-func (_mock *MockPlayerProvider) Insert(player *models.Player) (*models.Player, error) {
+func (_mock *MockPlayerProvider) Insert(player *models.Player) (uint64, error) {
 	ret := _mock.Called(player)
 
 	if len(ret) == 0 {
 		panic("no return value specified for Insert")
 	}
 
-	var r0 *models.Player
+	var r0 uint64
 	var r1 error
-	if returnFunc, ok := ret.Get(0).(func(*models.Player) (*models.Player, error)); ok {
+	if returnFunc, ok := ret.Get(0).(func(*models.Player) (uint64, error)); ok {
 		return returnFunc(player)
 	}
-	if returnFunc, ok := ret.Get(0).(func(*models.Player) *models.Player); ok {
+	if returnFunc, ok := ret.Get(0).(func(*models.Player) uint64); ok {
 		r0 = returnFunc(player)
 	} else {
-		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(*models.Player)
-		}
+		r0 = ret.Get(0).(uint64)
 	}
 	if returnFunc, ok := ret.Get(1).(func(*models.Player) error); ok {
 		r1 = returnFunc(player)
@@ -345,12 +343,12 @@ func (_c *MockPlayerProvider_Insert_Call) Run(run func(player *models.Player)) *
 	return _c
 }
 
-func (_c *MockPlayerProvider_Insert_Call) Return(player1 *models.Player, err error) *MockPlayerProvider_Insert_Call {
-	_c.Call.Return(player1, err)
+func (_c *MockPlayerProvider_Insert_Call) Return(v uint64, err error) *MockPlayerProvider_Insert_Call {
+	_c.Call.Return(v, err)
 	return _c
 }
 
-func (_c *MockPlayerProvider_Insert_Call) RunAndReturn(run func(player *models.Player) (*models.Player, error)) *MockPlayerProvider_Insert_Call {
+func (_c *MockPlayerProvider_Insert_Call) RunAndReturn(run func(player *models.Player) (uint64, error)) *MockPlayerProvider_Insert_Call {
 	_c.Call.Return(run)
 	return _c
 }
@@ -383,8 +381,8 @@ func (_m *MockTokenProvider) EXPECT() *MockTokenProvider_Expecter {
 }
 
 // FindOne provides a mock function for the type MockTokenProvider
-func (_mock *MockTokenProvider) FindOne(playerID uint64) (*models.Token, error) {
-	ret := _mock.Called(playerID)
+func (_mock *MockTokenProvider) FindOne(options *models.TokenFindOptions) (*models.Token, error) {
+	ret := _mock.Called(options)
 
 	if len(ret) == 0 {
 		panic("no return value specified for FindOne")
@@ -392,18 +390,18 @@ func (_mock *MockTokenProvider) FindOne(playerID uint64) (*models.Token, error) 
 
 	var r0 *models.Token
 	var r1 error
-	if returnFunc, ok := ret.Get(0).(func(uint64) (*models.Token, error)); ok {
-		return returnFunc(playerID)
+	if returnFunc, ok := ret.Get(0).(func(*models.TokenFindOptions) (*models.Token, error)); ok {
+		return returnFunc(options)
 	}
-	if returnFunc, ok := ret.Get(0).(func(uint64) *models.Token); ok {
-		r0 = returnFunc(playerID)
+	if returnFunc, ok := ret.Get(0).(func(*models.TokenFindOptions) *models.Token); ok {
+		r0 = returnFunc(options)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).(*models.Token)
 		}
 	}
-	if returnFunc, ok := ret.Get(1).(func(uint64) error); ok {
-		r1 = returnFunc(playerID)
+	if returnFunc, ok := ret.Get(1).(func(*models.TokenFindOptions) error); ok {
+		r1 = returnFunc(options)
 	} else {
 		r1 = ret.Error(1)
 	}
@@ -416,16 +414,16 @@ type MockTokenProvider_FindOne_Call struct {
 }
 
 // FindOne is a helper method to define mock.On call
-//   - playerID uint64
-func (_e *MockTokenProvider_Expecter) FindOne(playerID interface{}) *MockTokenProvider_FindOne_Call {
-	return &MockTokenProvider_FindOne_Call{Call: _e.mock.On("FindOne", playerID)}
+//   - options *models.TokenFindOptions
+func (_e *MockTokenProvider_Expecter) FindOne(options interface{}) *MockTokenProvider_FindOne_Call {
+	return &MockTokenProvider_FindOne_Call{Call: _e.mock.On("FindOne", options)}
 }
 
-func (_c *MockTokenProvider_FindOne_Call) Run(run func(playerID uint64)) *MockTokenProvider_FindOne_Call {
+func (_c *MockTokenProvider_FindOne_Call) Run(run func(options *models.TokenFindOptions)) *MockTokenProvider_FindOne_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		var arg0 uint64
+		var arg0 *models.TokenFindOptions
 		if args[0] != nil {
-			arg0 = args[0].(uint64)
+			arg0 = args[0].(*models.TokenFindOptions)
 		}
 		run(
 			arg0,
@@ -439,30 +437,28 @@ func (_c *MockTokenProvider_FindOne_Call) Return(token *models.Token, err error)
 	return _c
 }
 
-func (_c *MockTokenProvider_FindOne_Call) RunAndReturn(run func(playerID uint64) (*models.Token, error)) *MockTokenProvider_FindOne_Call {
+func (_c *MockTokenProvider_FindOne_Call) RunAndReturn(run func(options *models.TokenFindOptions) (*models.Token, error)) *MockTokenProvider_FindOne_Call {
 	_c.Call.Return(run)
 	return _c
 }
 
 // Insert provides a mock function for the type MockTokenProvider
-func (_mock *MockTokenProvider) Insert(token *models.Token) (*models.Token, error) {
+func (_mock *MockTokenProvider) Insert(token *models.Token) (uint64, error) {
 	ret := _mock.Called(token)
 
 	if len(ret) == 0 {
 		panic("no return value specified for Insert")
 	}
 
-	var r0 *models.Token
+	var r0 uint64
 	var r1 error
-	if returnFunc, ok := ret.Get(0).(func(*models.Token) (*models.Token, error)); ok {
+	if returnFunc, ok := ret.Get(0).(func(*models.Token) (uint64, error)); ok {
 		return returnFunc(token)
 	}
-	if returnFunc, ok := ret.Get(0).(func(*models.Token) *models.Token); ok {
+	if returnFunc, ok := ret.Get(0).(func(*models.Token) uint64); ok {
 		r0 = returnFunc(token)
 	} else {
-		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(*models.Token)
-		}
+		r0 = ret.Get(0).(uint64)
 	}
 	if returnFunc, ok := ret.Get(1).(func(*models.Token) error); ok {
 		r1 = returnFunc(token)
@@ -496,12 +492,12 @@ func (_c *MockTokenProvider_Insert_Call) Run(run func(token *models.Token)) *Moc
 	return _c
 }
 
-func (_c *MockTokenProvider_Insert_Call) Return(token1 *models.Token, err error) *MockTokenProvider_Insert_Call {
-	_c.Call.Return(token1, err)
+func (_c *MockTokenProvider_Insert_Call) Return(v uint64, err error) *MockTokenProvider_Insert_Call {
+	_c.Call.Return(v, err)
 	return _c
 }
 
-func (_c *MockTokenProvider_Insert_Call) RunAndReturn(run func(token *models.Token) (*models.Token, error)) *MockTokenProvider_Insert_Call {
+func (_c *MockTokenProvider_Insert_Call) RunAndReturn(run func(token *models.Token) (uint64, error)) *MockTokenProvider_Insert_Call {
 	_c.Call.Return(run)
 	return _c
 }

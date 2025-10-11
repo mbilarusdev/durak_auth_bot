@@ -1,6 +1,7 @@
 package service
 
 import (
+	"database/sql"
 	"fmt"
 	"time"
 
@@ -34,13 +35,12 @@ func (service *TokenService) FindActualByToken(token string) (*models.Token, err
 }
 
 func (service *TokenService) FindActualByPlayerID(playerID uint64) (*models.Token, error) {
-
-	finded, err := service.tokenRepository.FindOne(playerID)
+	finded, err := service.tokenRepository.FindOne(&models.TokenFindOptions{PlayerID: playerID})
+	if err == sql.ErrNoRows {
+		return nil, nil
+	}
 	if err != nil {
 		return nil, err
-	}
-	if finded == nil {
-		return nil, nil
 	}
 	available := jwt.Check(finded.Jwt, common.Conf.SecretKey)
 	if !available && finded.Status != models.TokenBlocked {
@@ -48,7 +48,14 @@ func (service *TokenService) FindActualByPlayerID(playerID uint64) (*models.Toke
 		if err != nil {
 			return nil, err
 		}
-		return service.tokenRepository.FindOne(playerID)
+		token, err := service.tokenRepository.FindOne(&models.TokenFindOptions{PlayerID: playerID})
+		if err == sql.ErrNoRows {
+			return nil, nil
+		}
+		if err != nil {
+			return nil, err
+		}
+		return token, nil
 	}
 	return finded, nil
 }
@@ -62,9 +69,20 @@ func (service *TokenService) IssueToken(playerID uint64) (*models.Token, error) 
 		},
 		common.Conf.SecretKey,
 	)
-	newToken, err := service.tokenRepository.Insert(
+	newTokenID, err := service.tokenRepository.Insert(
 		&models.Token{PlayerID: playerID, Jwt: newJwt, Status: models.TokenAvailable},
 	)
+	if err != nil {
+		return nil, err
+	}
+	newToken, err := service.tokenRepository.FindOne(&models.TokenFindOptions{ID: newTokenID})
+	if err == sql.ErrNoRows {
+		return nil, nil
+	}
+	if err != nil {
+		return nil, err
+	}
+
 	return newToken, err
 }
 
