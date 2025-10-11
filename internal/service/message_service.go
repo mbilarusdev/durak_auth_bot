@@ -10,7 +10,7 @@ import (
 
 type MessageManager interface {
 	Send(message string, chatID int) error
-	SendWithContactButton(chatID int)
+	SendWithContactButton(chatID int) error
 }
 
 type MessageService struct {
@@ -30,7 +30,11 @@ func (service *MessageService) Send(message string, chatID int) error {
 		ChatID: chatID,
 		Text:   message,
 	}
-	data, _ := json.Marshal(msgReq)
+	data, err := json.Marshal(msgReq)
+	if err != nil {
+		log.Println("Ошибка маршалинга при отправке сообщения:", err)
+		return err
+	}
 	sendResp, err := client.Post("sendMessage", data)
 	if err != nil || !sendResp.Ok {
 		log.Println("Ошибка отправки сообщения:", err, sendResp.ErrorDescription)
@@ -40,7 +44,7 @@ func (service *MessageService) Send(message string, chatID int) error {
 	return nil
 }
 
-func (service *MessageService) SendWithContactButton(chatID int) {
+func (service *MessageService) SendWithContactButton(chatID int) error {
 	client := service.tgClient
 	msgReq := models.SendMessageRequest{
 		ChatID: chatID,
@@ -55,9 +59,15 @@ func (service *MessageService) SendWithContactButton(chatID int) {
 			OneTimeKeyboard: true,
 		},
 	}
-	data, _ := json.Marshal(msgReq)
+	data, err := json.Marshal(msgReq)
+	if err != nil {
+		log.Println("Ошибка маршалинга при отправке сообщения:", err)
+		return err
+	}
 	sendResp, err := client.Post("sendMessage", data)
 	if err != nil || !sendResp.Ok {
 		log.Println("Ошибка отправки сообщения:", err, sendResp.ErrorDescription)
+		return err
 	}
+	return nil
 }

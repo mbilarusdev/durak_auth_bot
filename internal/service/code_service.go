@@ -22,7 +22,11 @@ func NewCodeService(codeRepository repository.CodeProvider) *CodeService {
 
 func (service *CodeService) CreateCode(phone string) (string, error) {
 	smsCode := utils.GenerateRandomCode()
-	return smsCode, service.codeRepository.Save(phone, smsCode)
+	err := service.codeRepository.Save(phone, smsCode)
+	if err != nil {
+		return "", err
+	}
+	return smsCode, nil
 }
 
 func (service *CodeService) ConsumeIsRightCode(phone string, confirmCode string) (bool, error) {
@@ -32,7 +36,10 @@ func (service *CodeService) ConsumeIsRightCode(phone string, confirmCode string)
 	}
 	isRightCode := code == confirmCode
 	if isRightCode {
-		service.codeRepository.Del(phone)
+		err := service.codeRepository.Del(phone)
+		if err != nil {
+			return isRightCode, err
+		}
 	}
 	return isRightCode, nil
 }
