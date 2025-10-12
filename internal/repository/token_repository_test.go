@@ -1,10 +1,10 @@
 package repository_test
 
 import (
-	"database/sql"
 	"fmt"
 	"testing"
 
+	"github.com/jackc/pgx/v5"
 	"github.com/mbilarusdev/durak_auth_bot/internal/interfaces"
 	"github.com/mbilarusdev/durak_auth_bot/internal/models"
 	"github.com/mbilarusdev/durak_auth_bot/internal/repository"
@@ -55,11 +55,11 @@ func TestTokenRepository(t *testing.T) {
 			"QueryRow",
 			mock.Anything,
 			"SELECT * FROM tokens WHERE id = $1 LIMIT 1;",
-			[]any{[]any{tokenID}},
+			[]any{tokenID},
 		).Once().Return(row)
 
 		findedToken := new(models.Token)
-		row.On("Scan", []any{findedToken}).
+		row.On("Scan", []any{&findedToken.ID, &findedToken.PlayerID, &findedToken.Jwt, &findedToken.Status}).
 			Once().
 			Return(nil)
 
@@ -82,11 +82,11 @@ func TestTokenRepository(t *testing.T) {
 			"QueryRow",
 			mock.Anything,
 			"SELECT * FROM tokens WHERE player_id = $1 LIMIT 1;",
-			[]any{[]any{token.PlayerID}},
+			[]any{token.PlayerID},
 		).Once().Return(row)
 
 		findedToken := new(models.Token)
-		row.On("Scan", []any{findedToken}).
+		row.On("Scan", []any{&findedToken.ID, &findedToken.PlayerID, &findedToken.Jwt, &findedToken.Status}).
 			Once().
 			Return(nil)
 
@@ -109,11 +109,11 @@ func TestTokenRepository(t *testing.T) {
 			"QueryRow",
 			mock.Anything,
 			"SELECT * FROM tokens WHERE id = $1 AND player_id = $2 LIMIT 1;",
-			[]any{[]any{tokenID, token.PlayerID}},
+			[]any{tokenID, token.PlayerID},
 		).Once().Return(row)
 
 		findedToken := new(models.Token)
-		row.On("Scan", []any{findedToken}).
+		row.On("Scan", []any{&findedToken.ID, &findedToken.PlayerID, &findedToken.Jwt, &findedToken.Status}).
 			Once().
 			Return(nil)
 
@@ -138,13 +138,13 @@ func TestTokenRepository(t *testing.T) {
 			"QueryRow",
 			mock.Anything,
 			"SELECT * FROM tokens WHERE id = $1 AND player_id = $2 LIMIT 1;",
-			[]any{[]any{tokenID, token.PlayerID}},
+			[]any{tokenID, token.PlayerID},
 		).Once().Return(row)
 
 		findedToken := new(models.Token)
-		row.On("Scan", []any{findedToken}).
+		row.On("Scan", []any{&findedToken.ID, &findedToken.PlayerID, &findedToken.Jwt, &findedToken.Status}).
 			Once().
-			Return(sql.ErrNoRows)
+			Return(pgx.ErrNoRows)
 
 		repository := repository.NewTokenRepository(pool)
 
@@ -156,9 +156,9 @@ func TestTokenRepository(t *testing.T) {
 		)
 		fmt.Println(err)
 
-		if err == nil || err != sql.ErrNoRows {
+		if err == nil || err != pgx.ErrNoRows {
 			t.Errorf(
-				"FindOne() expected to return sql.ErrNoRows error but returned nil or other error",
+				"FindOne() expected to return pgx.ErrNoRows error but returned nil or other error",
 			)
 		}
 	})
@@ -204,15 +204,15 @@ func TestTokenRepository(t *testing.T) {
 
 		row.On("Scan").
 			Once().
-			Return(sql.ErrNoRows)
+			Return(pgx.ErrNoRows)
 
 		repository := repository.NewTokenRepository(pool)
 
 		err := repository.UpdateStatus(tokenID, models.TokenBlocked)
 
-		if err == nil || err != sql.ErrNoRows {
+		if err == nil || err != pgx.ErrNoRows {
 			t.Errorf(
-				"UpdateStatus() expected to return sql.ErrNoRows error but returned nil or other error",
+				"UpdateStatus() expected to return pgx.ErrNoRows error but returned nil or other error",
 			)
 		}
 	})

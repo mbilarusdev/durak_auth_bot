@@ -1,17 +1,17 @@
 package service
 
 import (
-	"database/sql"
 	"time"
 
+	"github.com/jackc/pgx/v5"
 	"github.com/mbilarusdev/durak_auth_bot/internal/models"
 	"github.com/mbilarusdev/durak_auth_bot/internal/repository"
 )
 
 type PlayerManager interface {
 	FindByPhone(phone string) (*models.Player, error)
-	FindByChatID(chatID int) (*models.Player, error)
-	CreatePlayer(phone string, chatID int) (*models.Player, error)
+	FindByChatID(chatID int64) (*models.Player, error)
+	CreatePlayer(phone string, chatID int64) (*models.Player, error)
 }
 
 type PlayerService struct {
@@ -32,7 +32,7 @@ func (service *PlayerService) FindByPhone(phone string) (*models.Player, error) 
 	return player, err
 }
 
-func (service *PlayerService) FindByChatID(chatID int) (*models.Player, error) {
+func (service *PlayerService) FindByChatID(chatID int64) (*models.Player, error) {
 	player, err := service.playerRepository.FindOne(
 		&models.PlayerFindOptions{ChatID: chatID},
 	)
@@ -40,7 +40,7 @@ func (service *PlayerService) FindByChatID(chatID int) (*models.Player, error) {
 	return player, err
 }
 
-func (service *PlayerService) CreatePlayer(phone string, chatID int) (*models.Player, error) {
+func (service *PlayerService) CreatePlayer(phone string, chatID int64) (*models.Player, error) {
 	newPlayerID, err := service.playerRepository.Insert(&models.Player{
 		PhoneNumber: phone,
 		ChatID:      chatID,
@@ -51,7 +51,7 @@ func (service *PlayerService) CreatePlayer(phone string, chatID int) (*models.Pl
 	}
 
 	player, err := service.playerRepository.FindOne(&models.PlayerFindOptions{ID: newPlayerID})
-	if err != nil && err != sql.ErrNoRows {
+	if err != nil && err != pgx.ErrNoRows {
 		return nil, err
 	}
 

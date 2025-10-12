@@ -1,7 +1,7 @@
 package models
 
 type Chat struct {
-	ID    int    `json:"id"`
+	ID    int64  `json:"id"`
 	Type  string `json:"type"`
 	Title string `json:"title"`
 }

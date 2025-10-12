@@ -2,11 +2,11 @@ package repository
 
 import (
 	"context"
-	"database/sql"
 	"fmt"
 	"log"
 	"strings"
 
+	"github.com/jackc/pgx/v5"
 	"github.com/mbilarusdev/durak_auth_bot/internal/interfaces"
 	"github.com/mbilarusdev/durak_auth_bot/internal/models"
 )
@@ -87,13 +87,13 @@ func (repository *PlayerRepository) FindOne(
 	if err := conn.QueryRow(
 		ctx,
 		query,
-		args,
-	).Scan(findedPlayer); err != nil {
-		if err == sql.ErrNoRows {
+		args...,
+	).Scan(&findedPlayer.ID, &findedPlayer.Username, &findedPlayer.PhoneNumber, &findedPlayer.ChatID, &findedPlayer.CreatedAt); err != nil {
+		if err == pgx.ErrNoRows {
 			log.Printf("Не найдено игрока по данному поисковому запросу")
 			return nil, err
 		}
-		log.Println("Ошибка при поиске игрока по номеру телефона")
+		log.Println("Ошибка при поиске игрока")
 		return nil, err
 	}
 	return findedPlayer, nil

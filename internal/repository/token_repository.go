@@ -2,11 +2,11 @@ package repository
 
 import (
 	"context"
-	"database/sql"
 	"fmt"
 	"log"
 	"strings"
 
+	"github.com/jackc/pgx/v5"
 	"github.com/mbilarusdev/durak_auth_bot/internal/interfaces"
 	"github.com/mbilarusdev/durak_auth_bot/internal/models"
 )
@@ -78,8 +78,8 @@ func (repository *TokenRepository) FindOne(
 
 	query = strings.TrimSuffix(query, "AND ") + "LIMIT 1;"
 	findedToken := new(models.Token)
-	if err := conn.QueryRow(ctx, query, args).Scan(findedToken); err != nil {
-		if err == sql.ErrNoRows {
+	if err := conn.QueryRow(ctx, query, args...).Scan(&findedToken.ID, &findedToken.PlayerID, &findedToken.Jwt, &findedToken.Status); err != nil {
+		if err == pgx.ErrNoRows {
 			log.Println("Не найдено токена по данному поисковому запросу")
 			return nil, err
 		}
@@ -98,9 +98,8 @@ func (repository *TokenRepository) UpdateStatus(ID uint64, status string) error 
 	}
 	defer conn.Release()
 	if err := conn.QueryRow(ctx, "UPDATE tokens SET status = $1 WHERE id = $2;", status, ID).Scan(); err != nil {
-		if err == sql.ErrNoRows {
-			log.Println("Не найдено токена с данным id: ", ID)
-			return err
+		if err == pgx.ErrNoRows {
+			return nil
 		}
 		log.Println("Ошибка при обновлении токена")
 		return err

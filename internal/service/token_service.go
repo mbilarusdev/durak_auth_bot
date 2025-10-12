@@ -1,10 +1,10 @@
 package service
 
 import (
-	"database/sql"
 	"fmt"
 	"time"
 
+	"github.com/jackc/pgx/v5"
 	"github.com/mbilarusdev/durak_auth_bot/internal/common"
 	"github.com/mbilarusdev/durak_auth_bot/internal/models"
 	"github.com/mbilarusdev/durak_auth_bot/internal/repository"
@@ -36,7 +36,7 @@ func (service *TokenService) FindActualByToken(token string) (*models.Token, err
 
 func (service *TokenService) FindActualByPlayerID(playerID uint64) (*models.Token, error) {
 	finded, err := service.tokenRepository.FindOne(&models.TokenFindOptions{PlayerID: playerID})
-	if err == sql.ErrNoRows {
+	if err == pgx.ErrNoRows {
 		return nil, nil
 	}
 	if err != nil {
@@ -49,7 +49,7 @@ func (service *TokenService) FindActualByPlayerID(playerID uint64) (*models.Toke
 			return nil, err
 		}
 		token, err := service.tokenRepository.FindOne(&models.TokenFindOptions{PlayerID: playerID})
-		if err == sql.ErrNoRows {
+		if err == pgx.ErrNoRows {
 			return nil, nil
 		}
 		if err != nil {
@@ -76,7 +76,7 @@ func (service *TokenService) IssueToken(playerID uint64) (*models.Token, error) 
 		return nil, err
 	}
 	newToken, err := service.tokenRepository.FindOne(&models.TokenFindOptions{ID: newTokenID})
-	if err == sql.ErrNoRows {
+	if err == pgx.ErrNoRows {
 		return nil, nil
 	}
 	if err != nil {

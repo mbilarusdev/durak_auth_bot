@@ -1,11 +1,11 @@
 package repository_test
 
 import (
-	"database/sql"
 	"fmt"
 	"testing"
 	"time"
 
+	"github.com/jackc/pgx/v5"
 	"github.com/mbilarusdev/durak_auth_bot/internal/interfaces"
 	"github.com/mbilarusdev/durak_auth_bot/internal/models"
 	"github.com/mbilarusdev/durak_auth_bot/internal/repository"
@@ -18,7 +18,7 @@ func TestPlayerRepository(t *testing.T) {
 		Username:    "Vasiliy",
 		PhoneNumber: "+79680719568",
 		ChatID:      50,
-		CreatedAt:   time.Now().UTC().UnixMilli(),
+		CreatedAt:   time.Now().UTC().Unix(),
 	}
 	t.Run("Player Insert with success", func(t *testing.T) {
 		pool := interfaces.NewMockDBPool(t)
@@ -56,11 +56,11 @@ func TestPlayerRepository(t *testing.T) {
 			"QueryRow",
 			mock.Anything,
 			"SELECT * FROM players WHERE id = $1 LIMIT 1;",
-			[]any{[]any{playerID}},
+			[]any{playerID},
 		).Once().Return(row)
 
 		findedPlayer := new(models.Player)
-		row.On("Scan", []any{findedPlayer}).
+		row.On("Scan", []any{&findedPlayer.ID, &findedPlayer.Username, &findedPlayer.PhoneNumber, &findedPlayer.ChatID, &findedPlayer.CreatedAt}).
 			Once().
 			Return(nil)
 
@@ -83,11 +83,11 @@ func TestPlayerRepository(t *testing.T) {
 			"QueryRow",
 			mock.Anything,
 			"SELECT * FROM players WHERE chat_id = $1 LIMIT 1;",
-			[]any{[]any{player.ChatID}},
+			[]any{player.ChatID},
 		).Once().Return(row)
 
 		findedPlayer := new(models.Player)
-		row.On("Scan", []any{findedPlayer}).
+		row.On("Scan", []any{&findedPlayer.ID, &findedPlayer.Username, &findedPlayer.PhoneNumber, &findedPlayer.ChatID, &findedPlayer.CreatedAt}).
 			Once().
 			Return(nil)
 
@@ -110,11 +110,11 @@ func TestPlayerRepository(t *testing.T) {
 			"QueryRow",
 			mock.Anything,
 			"SELECT * FROM players WHERE phone_number = $1 LIMIT 1;",
-			[]any{[]any{player.PhoneNumber}},
+			[]any{player.PhoneNumber},
 		).Once().Return(row)
 
 		findedPlayer := new(models.Player)
-		row.On("Scan", []any{findedPlayer}).
+		row.On("Scan", []any{&findedPlayer.ID, &findedPlayer.Username, &findedPlayer.PhoneNumber, &findedPlayer.ChatID, &findedPlayer.CreatedAt}).
 			Once().
 			Return(nil)
 
@@ -137,11 +137,11 @@ func TestPlayerRepository(t *testing.T) {
 			"QueryRow",
 			mock.Anything,
 			"SELECT * FROM players WHERE id = $1 AND phone_number = $2 AND chat_id = $3 LIMIT 1;",
-			[]any{[]any{playerID, player.PhoneNumber, player.ChatID}},
+			[]any{playerID, player.PhoneNumber, player.ChatID},
 		).Once().Return(row)
 
 		findedPlayer := new(models.Player)
-		row.On("Scan", []any{findedPlayer}).
+		row.On("Scan", []any{&findedPlayer.ID, &findedPlayer.Username, &findedPlayer.PhoneNumber, &findedPlayer.ChatID, &findedPlayer.CreatedAt}).
 			Once().
 			Return(nil)
 
@@ -170,13 +170,13 @@ func TestPlayerRepository(t *testing.T) {
 			"QueryRow",
 			mock.Anything,
 			"SELECT * FROM players WHERE id = $1 AND phone_number = $2 AND chat_id = $3 LIMIT 1;",
-			[]any{[]any{playerID, player.PhoneNumber, player.ChatID}},
+			[]any{playerID, player.PhoneNumber, player.ChatID},
 		).Once().Return(row)
 
 		findedPlayer := new(models.Player)
-		row.On("Scan", []any{findedPlayer}).
+		row.On("Scan", []any{&findedPlayer.ID, &findedPlayer.Username, &findedPlayer.PhoneNumber, &findedPlayer.ChatID, &findedPlayer.CreatedAt}).
 			Once().
-			Return(sql.ErrNoRows)
+			Return(pgx.ErrNoRows)
 
 		repository := repository.NewPlayerRepository(pool)
 
@@ -189,9 +189,9 @@ func TestPlayerRepository(t *testing.T) {
 		)
 		fmt.Println(err)
 
-		if err == nil || err != sql.ErrNoRows {
+		if err == nil || err != pgx.ErrNoRows {
 			t.Errorf(
-				"FindOne() expected to return sql.ErrNoRows error but returned nil or other error",
+				"FindOne() expected to return pgx.ErrNoRows error but returned nil or other error",
 			)
 		}
 	})

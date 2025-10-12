@@ -9,8 +9,8 @@ import (
 )
 
 type MessageManager interface {
-	Send(message string, chatID int) error
-	SendWithContactButton(chatID int) error
+	Send(message string, chatID int64) error
+	SendWithContactButton(chatID int64) error
 }
 
 type MessageService struct {
@@ -24,7 +24,7 @@ func NewMessageService(tgClient client.TgNetworkManager) *MessageService {
 	return service
 }
 
-func (service *MessageService) Send(message string, chatID int) error {
+func (service *MessageService) Send(message string, chatID int64) error {
 	client := service.tgClient
 	msgReq := models.SendMessageRequest{
 		ChatID: chatID,
@@ -44,7 +44,7 @@ func (service *MessageService) Send(message string, chatID int) error {
 	return nil
 }
 
-func (service *MessageService) SendWithContactButton(chatID int) error {
+func (service *MessageService) SendWithContactButton(chatID int64) error {
 	client := service.tgClient
 	msgReq := models.SendMessageRequest{
 		ChatID: chatID,
