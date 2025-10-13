@@ -62,19 +62,11 @@ func Run() {
 
 	// Router
 	r := mux.NewRouter()
-
 	swaggerDir := filepath.Join("docs", "swagger-ui")
 	r.PathPrefix("/swagger/").
 		Handler(http.StripPrefix("/swagger/", http.FileServer(http.Dir(swaggerDir))))
-
-	// Роут для спецификации
 	r.HandleFunc("/swagger.json", func(w http.ResponseWriter, r *http.Request) {
 		http.ServeFile(w, r, "./docs/swagger.json")
-	})
-
-	// Главная страница перенаправляет на Swagger UI
-	r.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
-		http.Redirect(w, r, "/swagger/index.html", http.StatusFound)
 	})
 	r.HandleFunc("/code/send", sendCodeEndpoint.Call).Methods(http.MethodPost)
 	r.HandleFunc("/code/confirm", confirmCodeEndpoint.Call).Methods(http.MethodPost)
