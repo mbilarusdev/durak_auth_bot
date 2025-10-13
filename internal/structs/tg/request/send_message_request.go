@@ -1,4 +1,4 @@
-package models
+package tg_request
 
 type SendMessageRequest struct {
 	ChatID      int64  `json:"chat_id"`

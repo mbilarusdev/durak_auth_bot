@@ -5,7 +5,8 @@ import (
 	"log"
 
 	"github.com/mbilarusdev/durak_auth_bot/internal/client"
-	"github.com/mbilarusdev/durak_auth_bot/internal/models"
+	tg_model "github.com/mbilarusdev/durak_auth_bot/internal/structs/tg/model"
+	tg_request "github.com/mbilarusdev/durak_auth_bot/internal/structs/tg/request"
 )
 
 type MessageManager interface {
@@ -26,7 +27,7 @@ func NewMessageService(tgClient client.TgNetworkManager) *MessageService {
 
 func (service *MessageService) Send(message string, chatID int64) error {
 	client := service.tgClient
-	msgReq := models.SendMessageRequest{
+	msgReq := tg_request.SendMessageRequest{
 		ChatID: chatID,
 		Text:   message,
 	}
@@ -46,11 +47,11 @@ func (service *MessageService) Send(message string, chatID int64) error {
 
 func (service *MessageService) SendWithContactButton(chatID int64) error {
 	client := service.tgClient
-	msgReq := models.SendMessageRequest{
+	msgReq := tg_request.SendMessageRequest{
 		ChatID: chatID,
 		Text:   "Чтобы получить временный код, отправьте свой контакт",
-		ReplyMarkup: models.ReplyKeyboardMarkup{
-			Keyboard: [][]models.KeyboardButton{
+		ReplyMarkup: tg_model.ReplyKeyboardMarkup{
+			Keyboard: [][]tg_model.KeyboardButton{
 				{
 					{Text: "Поделиться контактом", RequestContact: true},
 				},

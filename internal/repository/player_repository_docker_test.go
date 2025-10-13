@@ -10,8 +10,9 @@ import (
 	"github.com/docker/go-connections/nat"
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/mbilarusdev/durak_auth_bot/internal/adapter"
-	"github.com/mbilarusdev/durak_auth_bot/internal/models"
 	"github.com/mbilarusdev/durak_auth_bot/internal/repository"
+	app_model "github.com/mbilarusdev/durak_auth_bot/internal/structs/app/model"
+	app_option "github.com/mbilarusdev/durak_auth_bot/internal/structs/app/option"
 	"github.com/testcontainers/testcontainers-go"
 	"github.com/testcontainers/testcontainers-go/wait"
 )
@@ -87,10 +88,10 @@ func TestPlayerRepositoryDocker(t *testing.T) {
 	}
 	conn.Release()
 
-	t.Run("Player Inserted then Finded with success", func(t *testing.T) {
+	t.Run("All methods success", func(t *testing.T) {
 		repository := repository.NewPlayerRepository(adapter.NewAdapterPool(pool))
 
-		player := &models.Player{
+		player := &app_model.Player{
 			Username:    "Boris",
 			PhoneNumber: "+79150321628",
 			ChatID:      10,
@@ -101,7 +102,7 @@ func TestPlayerRepositoryDocker(t *testing.T) {
 			t.Fatalf("Create player failed: %s", err)
 		}
 
-		foundPlayerById, err := repository.FindOne(&models.PlayerFindOptions{ID: playerID})
+		foundPlayerById, err := repository.FindOne(&app_option.PlayerFindOptions{ID: playerID})
 		if err != nil {
 			t.Fatalf("Get user by id failed: %s", err)
 		}

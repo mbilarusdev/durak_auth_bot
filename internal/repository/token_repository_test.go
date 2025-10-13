@@ -6,17 +6,18 @@ import (
 
 	"github.com/jackc/pgx/v5"
 	"github.com/mbilarusdev/durak_auth_bot/internal/interfaces"
-	"github.com/mbilarusdev/durak_auth_bot/internal/models"
 	"github.com/mbilarusdev/durak_auth_bot/internal/repository"
+	app_model "github.com/mbilarusdev/durak_auth_bot/internal/structs/app/model"
+	app_option "github.com/mbilarusdev/durak_auth_bot/internal/structs/app/option"
 	"github.com/stretchr/testify/mock"
 )
 
 func TestTokenRepository(t *testing.T) {
 	tokenID := uint64(123)
-	token := &models.Token{
+	token := &app_model.Token{
 		PlayerID: 10,
 		Jwt:      "abvgd",
-		Status:   models.TokenAvailable,
+		Status:   app_model.TokenAvailable,
 	}
 	t.Run("Token Insert with success", func(t *testing.T) {
 		pool := interfaces.NewMockDBPool(t)
@@ -58,14 +59,14 @@ func TestTokenRepository(t *testing.T) {
 			[]any{tokenID},
 		).Once().Return(row)
 
-		findedToken := new(models.Token)
+		findedToken := new(app_model.Token)
 		row.On("Scan", []any{&findedToken.ID, &findedToken.PlayerID, &findedToken.Jwt, &findedToken.Status}).
 			Once().
 			Return(nil)
 
 		repository := repository.NewTokenRepository(pool)
 
-		_, err := repository.FindOne(&models.TokenFindOptions{ID: tokenID})
+		_, err := repository.FindOne(&app_option.TokenFindOptions{ID: tokenID})
 
 		if err != nil {
 			t.Errorf("FindOne() by ID failed: %v", err)
@@ -85,14 +86,14 @@ func TestTokenRepository(t *testing.T) {
 			[]any{token.PlayerID},
 		).Once().Return(row)
 
-		findedToken := new(models.Token)
+		findedToken := new(app_model.Token)
 		row.On("Scan", []any{&findedToken.ID, &findedToken.PlayerID, &findedToken.Jwt, &findedToken.Status}).
 			Once().
 			Return(nil)
 
 		repository := repository.NewTokenRepository(pool)
 
-		_, err := repository.FindOne(&models.TokenFindOptions{PlayerID: token.PlayerID})
+		_, err := repository.FindOne(&app_option.TokenFindOptions{PlayerID: token.PlayerID})
 
 		if err != nil {
 			t.Errorf("FindOne() by Player ID failed: %v", err)
@@ -112,7 +113,7 @@ func TestTokenRepository(t *testing.T) {
 			[]any{tokenID, token.PlayerID},
 		).Once().Return(row)
 
-		findedToken := new(models.Token)
+		findedToken := new(app_model.Token)
 		row.On("Scan", []any{&findedToken.ID, &findedToken.PlayerID, &findedToken.Jwt, &findedToken.Status}).
 			Once().
 			Return(nil)
@@ -120,7 +121,7 @@ func TestTokenRepository(t *testing.T) {
 		repository := repository.NewTokenRepository(pool)
 
 		_, err := repository.FindOne(
-			&models.TokenFindOptions{ID: tokenID, PlayerID: token.PlayerID},
+			&app_option.TokenFindOptions{ID: tokenID, PlayerID: token.PlayerID},
 		)
 
 		if err != nil {
@@ -141,7 +142,7 @@ func TestTokenRepository(t *testing.T) {
 			[]any{tokenID, token.PlayerID},
 		).Once().Return(row)
 
-		findedToken := new(models.Token)
+		findedToken := new(app_model.Token)
 		row.On("Scan", []any{&findedToken.ID, &findedToken.PlayerID, &findedToken.Jwt, &findedToken.Status}).
 			Once().
 			Return(pgx.ErrNoRows)
@@ -149,7 +150,7 @@ func TestTokenRepository(t *testing.T) {
 		repository := repository.NewTokenRepository(pool)
 
 		_, err := repository.FindOne(
-			&models.TokenFindOptions{
+			&app_option.TokenFindOptions{
 				ID:       tokenID,
 				PlayerID: token.PlayerID,
 			},
@@ -173,7 +174,7 @@ func TestTokenRepository(t *testing.T) {
 			"QueryRow",
 			mock.Anything,
 			"UPDATE tokens SET status = $1 WHERE id = $2;",
-			[]any{models.TokenBlocked, tokenID},
+			[]any{app_model.TokenBlocked, tokenID},
 		).Once().Return(row)
 
 		row.On("Scan").
@@ -182,7 +183,7 @@ func TestTokenRepository(t *testing.T) {
 
 		repository := repository.NewTokenRepository(pool)
 
-		err := repository.UpdateStatus(tokenID, models.TokenBlocked)
+		err := repository.UpdateStatus(tokenID, app_model.TokenBlocked)
 
 		if err != nil {
 			t.Errorf("UpdateStatus() by ID failed: %v", err)
@@ -199,7 +200,7 @@ func TestTokenRepository(t *testing.T) {
 			"QueryRow",
 			mock.Anything,
 			"UPDATE tokens SET status = $1 WHERE id = $2;",
-			[]any{models.TokenBlocked, tokenID},
+			[]any{app_model.TokenBlocked, tokenID},
 		).Once().Return(row)
 
 		row.On("Scan").
@@ -208,7 +209,7 @@ func TestTokenRepository(t *testing.T) {
 
 		repository := repository.NewTokenRepository(pool)
 
-		err := repository.UpdateStatus(tokenID, models.TokenBlocked)
+		err := repository.UpdateStatus(tokenID, app_model.TokenBlocked)
 
 		if err == nil || err != pgx.ErrNoRows {
 			t.Errorf(

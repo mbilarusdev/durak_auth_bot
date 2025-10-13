@@ -36,10 +36,7 @@ func (service *CodeService) ConsumeIsRightCode(phone string, confirmCode string)
 	}
 	isRightCode := code == confirmCode
 	if isRightCode {
-		err := service.codeRepository.Del(phone)
-		if err != nil {
-			return isRightCode, err
-		}
+		service.codeRepository.Del(phone)
 	}
 	return isRightCode, nil
 }

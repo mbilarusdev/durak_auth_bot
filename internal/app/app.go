@@ -3,9 +3,11 @@ package app
 import (
 	"log"
 	"net/http"
+	"path/filepath"
 	"time"
 
 	"github.com/go-redis/redis/v8"
+	"github.com/gorilla/mux"
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/mbilarusdev/durak_auth_bot/internal/adapter"
 	"github.com/mbilarusdev/durak_auth_bot/internal/bot"
@@ -59,11 +61,25 @@ func Run() {
 	logoutEndpoint := endpoint.NewLogoutEndpoint(tokenService)
 
 	// Router
-	r := common.NewServiceRouter()
-	common.AddRoute(r, "/code/send", sendCodeEndpoint.Call, http.MethodPost)
-	common.AddRoute(r, "/code/confirm", confirmCodeEndpoint.Call, http.MethodPost)
-	common.AddRoute(r, "/login/check", checkAuthEndpoint.Call, http.MethodPost)
-	common.AddRoute(r, "/logout", logoutEndpoint.Call, http.MethodPost)
+	r := mux.NewRouter()
+
+	swaggerDir := filepath.Join("docs", "swagger-ui")
+	r.PathPrefix("/swagger/").
+		Handler(http.StripPrefix("/swagger/", http.FileServer(http.Dir(swaggerDir))))
+
+	// Роут для спецификации
+	r.HandleFunc("/swagger.json", func(w http.ResponseWriter, r *http.Request) {
+		http.ServeFile(w, r, "./docs/swagger.json")
+	})
+
+	// Главная страница перенаправляет на Swagger UI
+	r.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
+		http.Redirect(w, r, "/swagger/index.html", http.StatusFound)
+	})
+	r.HandleFunc("/code/send", sendCodeEndpoint.Call).Methods(http.MethodPost)
+	r.HandleFunc("/code/confirm", confirmCodeEndpoint.Call).Methods(http.MethodPost)
+	r.HandleFunc("/login/check", checkAuthEndpoint.Call).Methods(http.MethodPost)
+	r.HandleFunc("/logout", logoutEndpoint.Call).Methods(http.MethodPost)
 
 	// Serving
 	go bot.StartPolling()

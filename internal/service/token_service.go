@@ -6,16 +6,17 @@ import (
 
 	"github.com/jackc/pgx/v5"
 	"github.com/mbilarusdev/durak_auth_bot/internal/common"
-	"github.com/mbilarusdev/durak_auth_bot/internal/models"
 	"github.com/mbilarusdev/durak_auth_bot/internal/repository"
+	app_model "github.com/mbilarusdev/durak_auth_bot/internal/structs/app/model"
+	app_option "github.com/mbilarusdev/durak_auth_bot/internal/structs/app/option"
 	"github.com/mbilarusdev/jwt/jwt"
 	jwtmodels "github.com/mbilarusdev/jwt/models"
 )
 
 type TokenManager interface {
-	FindActualByToken(token string) (*models.Token, error)
-	FindActualByPlayerID(playerID uint64) (*models.Token, error)
-	IssueToken(playerID uint64) (*models.Token, error)
+	FindActualByToken(token string) (*app_model.Token, error)
+	FindActualByPlayerID(playerID uint64) (*app_model.Token, error)
+	IssueToken(playerID uint64) (*app_model.Token, error)
 	BlockToken(tokenID uint64) error
 }
 
@@ -29,13 +30,13 @@ func NewTokenService(tokenRepository repository.TokenProvider) *TokenService {
 	return service
 }
 
-func (service *TokenService) FindActualByToken(token string) (*models.Token, error) {
+func (service *TokenService) FindActualByToken(token string) (*app_model.Token, error) {
 	playerID := jwt.GetSubID(token, common.Conf.Token)
 	return service.FindActualByPlayerID(playerID)
 }
 
-func (service *TokenService) FindActualByPlayerID(playerID uint64) (*models.Token, error) {
-	finded, err := service.tokenRepository.FindOne(&models.TokenFindOptions{PlayerID: playerID})
+func (service *TokenService) FindActualByPlayerID(playerID uint64) (*app_model.Token, error) {
+	finded, err := service.tokenRepository.FindOne(&app_option.TokenFindOptions{PlayerID: playerID})
 	if err == pgx.ErrNoRows {
 		return nil, nil
 	}
@@ -43,12 +44,14 @@ func (service *TokenService) FindActualByPlayerID(playerID uint64) (*models.Toke
 		return nil, err
 	}
 	available := jwt.Check(finded.Jwt, common.Conf.SecretKey)
-	if !available && finded.Status != models.TokenBlocked {
-		err := service.tokenRepository.UpdateStatus(finded.ID, models.TokenExpired)
+	if !available && finded.Status != app_model.TokenBlocked {
+		err := service.tokenRepository.UpdateStatus(finded.ID, app_model.TokenExpired)
 		if err != nil {
 			return nil, err
 		}
-		token, err := service.tokenRepository.FindOne(&models.TokenFindOptions{PlayerID: playerID})
+		token, err := service.tokenRepository.FindOne(
+			&app_option.TokenFindOptions{PlayerID: playerID},
+		)
 		if err == pgx.ErrNoRows {
 			return nil, nil
 		}
@@ -60,7 +63,7 @@ func (service *TokenService) FindActualByPlayerID(playerID uint64) (*models.Toke
 	return finded, nil
 }
 
-func (service *TokenService) IssueToken(playerID uint64) (*models.Token, error) {
+func (service *TokenService) IssueToken(playerID uint64) (*app_model.Token, error) {
 	newJwt := jwt.IssueShort(
 		&jwtmodels.JwtShortPayload{
 			Iss:      common.AppName,
@@ -70,12 +73,12 @@ func (service *TokenService) IssueToken(playerID uint64) (*models.Token, error) 
 		common.Conf.SecretKey,
 	)
 	newTokenID, err := service.tokenRepository.Insert(
-		&models.Token{PlayerID: playerID, Jwt: newJwt, Status: models.TokenAvailable},
+		&app_model.Token{PlayerID: playerID, Jwt: newJwt, Status: app_model.TokenAvailable},
 	)
 	if err != nil {
 		return nil, err
 	}
-	newToken, err := service.tokenRepository.FindOne(&models.TokenFindOptions{ID: newTokenID})
+	newToken, err := service.tokenRepository.FindOne(&app_option.TokenFindOptions{ID: newTokenID})
 	if err == pgx.ErrNoRows {
 		return nil, nil
 	}
@@ -87,5 +90,5 @@ func (service *TokenService) IssueToken(playerID uint64) (*models.Token, error) 
 }
 
 func (service *TokenService) BlockToken(tokenID uint64) error {
-	return service.tokenRepository.UpdateStatus(tokenID, models.TokenBlocked)
+	return service.tokenRepository.UpdateStatus(tokenID, app_model.TokenBlocked)
 }

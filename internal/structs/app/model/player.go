@@ -1,4 +1,4 @@
-package models
+package app_model
 
 type Player struct {
 	ID          uint64 `json:"id"`

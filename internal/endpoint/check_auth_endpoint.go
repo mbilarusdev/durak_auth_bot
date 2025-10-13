@@ -1,12 +1,15 @@
 package endpoint
 
 import (
+	"fmt"
 	"net/http"
 	"strings"
 
-	"github.com/mbilarusdev/durak_auth_bot/internal/models"
 	"github.com/mbilarusdev/durak_auth_bot/internal/service"
-	"github.com/mbilarusdev/durak_network/network"
+	app_model "github.com/mbilarusdev/durak_auth_bot/internal/structs/app/model"
+	net_util "github.com/mbilarusdev/durak_network/net_util"
+	net_res "github.com/mbilarusdev/durak_network/response"
+	net_err "github.com/mbilarusdev/durak_network/response/err"
 )
 
 type CheckAuthEndpoint struct {
@@ -19,25 +22,69 @@ func NewCheckAuthEndpoint(tokenService *service.TokenService) *CheckAuthEndpoint
 	return endpoint
 }
 
+// @Summary Check auth
+// @Description Возвращает информацию о том, актуален ли авторизационный токен
+// @Tags Auth
+// @Param Authorization header string true "Bearer token" default(Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9)
+// @Success 200 {object} net_res.Body{code=int,err=nil,data=app_model.Token} "Токен действителен, вы авторизованы"
+// @Header 200 {string} Authorization "JWT"
+// @Failure 400 {object} net_res.Body{code=int,err=net_err.TokenNotProvidedErr,data=nil} "Токен не передан"
+// @Failure 404 {object} net_res.Body{code=int,err=net_err.TokenIncorrectErr,data=nil} "Токен инкорректен"
+// @Failure 500 {object} net_res.Body{code=int,err=net_err.ServerErr,data=nil} "Ошибка при проверке/выпуске токена"
+// @Router /login/check [post]
 func (endpoint *CheckAuthEndpoint) Call(
 	w http.ResponseWriter,
 	r *http.Request,
-) *network.Result {
+) {
 	authHeader := r.Header.Get("Authorization")
 	if authHeader == "" {
-		return network.TokenNotProvided(w)
+		code := http.StatusBadRequest
+		net_util.SendResponse(
+			w,
+			code,
+			net_res.NewBody(code, net_err.NewTokenNotProvidedErr(), nil),
+			map[string]string{},
+		)
+		return
 	}
 	segments := strings.Split(authHeader, " ")
 	if len(segments) != 2 {
-		return network.TokenIncorrect(w)
+		code := http.StatusUnauthorized
+		net_util.SendResponse(
+			w,
+			code,
+			net_res.NewBody(code, net_err.NewTokenIncorrectErr(), nil),
+			map[string]string{},
+		)
+		return
 	}
 	token := segments[1]
 	actualToken, err := endpoint.tokenService.FindActualByToken(token)
 	if err != nil {
-		return network.ServerError(w, "Ошибка проверки информации о токене")
+		code := http.StatusInternalServerError
+		net_util.SendResponse(
+			w,
+			code,
+			net_res.NewBody(code, net_err.NewServerErr(), nil),
+			map[string]string{},
+		)
+		return
 	}
-	if actualToken == nil || actualToken.Status != models.TokenAvailable {
-		return network.TokenIncorrect(w)
+	if actualToken == nil || actualToken.Status != app_model.TokenAvailable {
+		code := http.StatusUnauthorized
+		net_util.SendResponse(
+			w,
+			code,
+			net_res.NewBody(code, net_err.NewTokenIncorrectErr(), nil),
+			map[string]string{},
+		)
+		return
 	}
-	return network.SuccessString(w, "Токен верен!")
+	code := http.StatusCreated
+	net_util.SendResponse(
+		w,
+		code,
+		net_res.NewBody(code, nil, actualToken),
+		map[string]string{"Authorization": fmt.Sprintf("Bearer %v", actualToken.Jwt)},
+	)
 }

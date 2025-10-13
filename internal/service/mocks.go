@@ -5,7 +5,8 @@
 package service
 
 import (
-	"github.com/mbilarusdev/durak_auth_bot/internal/models"
+	"github.com/mbilarusdev/durak_auth_bot/internal/structs/app/model"
+	"github.com/mbilarusdev/durak_auth_bot/internal/structs/tg/model"
 	mock "github.com/stretchr/testify/mock"
 )
 
@@ -190,7 +191,7 @@ func (_m *MockMessageManager) EXPECT() *MockMessageManager_Expecter {
 }
 
 // Send provides a mock function for the type MockMessageManager
-func (_mock *MockMessageManager) Send(message string, chatID int) error {
+func (_mock *MockMessageManager) Send(message string, chatID int64) error {
 	ret := _mock.Called(message, chatID)
 
 	if len(ret) == 0 {
@@ -198,7 +199,7 @@ func (_mock *MockMessageManager) Send(message string, chatID int) error {
 	}
 
 	var r0 error
-	if returnFunc, ok := ret.Get(0).(func(string, int) error); ok {
+	if returnFunc, ok := ret.Get(0).(func(string, int64) error); ok {
 		r0 = returnFunc(message, chatID)
 	} else {
 		r0 = ret.Error(0)
@@ -213,20 +214,20 @@ type MockMessageManager_Send_Call struct {
 
 // Send is a helper method to define mock.On call
 //   - message string
-//   - chatID int
+//   - chatID int64
 func (_e *MockMessageManager_Expecter) Send(message interface{}, chatID interface{}) *MockMessageManager_Send_Call {
 	return &MockMessageManager_Send_Call{Call: _e.mock.On("Send", message, chatID)}
 }
 
-func (_c *MockMessageManager_Send_Call) Run(run func(message string, chatID int)) *MockMessageManager_Send_Call {
+func (_c *MockMessageManager_Send_Call) Run(run func(message string, chatID int64)) *MockMessageManager_Send_Call {
 	_c.Call.Run(func(args mock.Arguments) {
 		var arg0 string
 		if args[0] != nil {
 			arg0 = args[0].(string)
 		}
-		var arg1 int
+		var arg1 int64
 		if args[1] != nil {
-			arg1 = args[1].(int)
+			arg1 = args[1].(int64)
 		}
 		run(
 			arg0,
@@ -241,15 +242,26 @@ func (_c *MockMessageManager_Send_Call) Return(err error) *MockMessageManager_Se
 	return _c
 }
 
-func (_c *MockMessageManager_Send_Call) RunAndReturn(run func(message string, chatID int) error) *MockMessageManager_Send_Call {
+func (_c *MockMessageManager_Send_Call) RunAndReturn(run func(message string, chatID int64) error) *MockMessageManager_Send_Call {
 	_c.Call.Return(run)
 	return _c
 }
 
 // SendWithContactButton provides a mock function for the type MockMessageManager
-func (_mock *MockMessageManager) SendWithContactButton(chatID int) {
-	_mock.Called(chatID)
-	return
+func (_mock *MockMessageManager) SendWithContactButton(chatID int64) error {
+	ret := _mock.Called(chatID)
+
+	if len(ret) == 0 {
+		panic("no return value specified for SendWithContactButton")
+	}
+
+	var r0 error
+	if returnFunc, ok := ret.Get(0).(func(int64) error); ok {
+		r0 = returnFunc(chatID)
+	} else {
+		r0 = ret.Error(0)
+	}
+	return r0
 }
 
 // MockMessageManager_SendWithContactButton_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'SendWithContactButton'
@@ -258,16 +270,16 @@ type MockMessageManager_SendWithContactButton_Call struct {
 }
 
 // SendWithContactButton is a helper method to define mock.On call
-//   - chatID int
+//   - chatID int64
 func (_e *MockMessageManager_Expecter) SendWithContactButton(chatID interface{}) *MockMessageManager_SendWithContactButton_Call {
 	return &MockMessageManager_SendWithContactButton_Call{Call: _e.mock.On("SendWithContactButton", chatID)}
 }
 
-func (_c *MockMessageManager_SendWithContactButton_Call) Run(run func(chatID int)) *MockMessageManager_SendWithContactButton_Call {
+func (_c *MockMessageManager_SendWithContactButton_Call) Run(run func(chatID int64)) *MockMessageManager_SendWithContactButton_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		var arg0 int
+		var arg0 int64
 		if args[0] != nil {
-			arg0 = args[0].(int)
+			arg0 = args[0].(int64)
 		}
 		run(
 			arg0,
@@ -276,13 +288,13 @@ func (_c *MockMessageManager_SendWithContactButton_Call) Run(run func(chatID int
 	return _c
 }
 
-func (_c *MockMessageManager_SendWithContactButton_Call) Return() *MockMessageManager_SendWithContactButton_Call {
-	_c.Call.Return()
+func (_c *MockMessageManager_SendWithContactButton_Call) Return(err error) *MockMessageManager_SendWithContactButton_Call {
+	_c.Call.Return(err)
 	return _c
 }
 
-func (_c *MockMessageManager_SendWithContactButton_Call) RunAndReturn(run func(chatID int)) *MockMessageManager_SendWithContactButton_Call {
-	_c.Run(run)
+func (_c *MockMessageManager_SendWithContactButton_Call) RunAndReturn(run func(chatID int64) error) *MockMessageManager_SendWithContactButton_Call {
+	_c.Call.Return(run)
 	return _c
 }
 
@@ -314,26 +326,26 @@ func (_m *MockPlayerManager) EXPECT() *MockPlayerManager_Expecter {
 }
 
 // CreatePlayer provides a mock function for the type MockPlayerManager
-func (_mock *MockPlayerManager) CreatePlayer(phone string, chatID int) (*models.Player, error) {
+func (_mock *MockPlayerManager) CreatePlayer(phone string, chatID int64) (*app_model.Player, error) {
 	ret := _mock.Called(phone, chatID)
 
 	if len(ret) == 0 {
 		panic("no return value specified for CreatePlayer")
 	}
 
-	var r0 *models.Player
+	var r0 *app_model.Player
 	var r1 error
-	if returnFunc, ok := ret.Get(0).(func(string, int) (*models.Player, error)); ok {
+	if returnFunc, ok := ret.Get(0).(func(string, int64) (*app_model.Player, error)); ok {
 		return returnFunc(phone, chatID)
 	}
-	if returnFunc, ok := ret.Get(0).(func(string, int) *models.Player); ok {
+	if returnFunc, ok := ret.Get(0).(func(string, int64) *app_model.Player); ok {
 		r0 = returnFunc(phone, chatID)
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(*models.Player)
+			r0 = ret.Get(0).(*app_model.Player)
 		}
 	}
-	if returnFunc, ok := ret.Get(1).(func(string, int) error); ok {
+	if returnFunc, ok := ret.Get(1).(func(string, int64) error); ok {
 		r1 = returnFunc(phone, chatID)
 	} else {
 		r1 = ret.Error(1)
@@ -348,20 +360,20 @@ type MockPlayerManager_CreatePlayer_Call struct {
 
 // CreatePlayer is a helper method to define mock.On call
 //   - phone string
-//   - chatID int
+//   - chatID int64
 func (_e *MockPlayerManager_Expecter) CreatePlayer(phone interface{}, chatID interface{}) *MockPlayerManager_CreatePlayer_Call {
 	return &MockPlayerManager_CreatePlayer_Call{Call: _e.mock.On("CreatePlayer", phone, chatID)}
 }
 
-func (_c *MockPlayerManager_CreatePlayer_Call) Run(run func(phone string, chatID int)) *MockPlayerManager_CreatePlayer_Call {
+func (_c *MockPlayerManager_CreatePlayer_Call) Run(run func(phone string, chatID int64)) *MockPlayerManager_CreatePlayer_Call {
 	_c.Call.Run(func(args mock.Arguments) {
 		var arg0 string
 		if args[0] != nil {
 			arg0 = args[0].(string)
 		}
-		var arg1 int
+		var arg1 int64
 		if args[1] != nil {
-			arg1 = args[1].(int)
+			arg1 = args[1].(int64)
 		}
 		run(
 			arg0,
@@ -371,37 +383,37 @@ func (_c *MockPlayerManager_CreatePlayer_Call) Run(run func(phone string, chatID
 	return _c
 }
 
-func (_c *MockPlayerManager_CreatePlayer_Call) Return(player *models.Player, err error) *MockPlayerManager_CreatePlayer_Call {
+func (_c *MockPlayerManager_CreatePlayer_Call) Return(player *app_model.Player, err error) *MockPlayerManager_CreatePlayer_Call {
 	_c.Call.Return(player, err)
 	return _c
 }
 
-func (_c *MockPlayerManager_CreatePlayer_Call) RunAndReturn(run func(phone string, chatID int) (*models.Player, error)) *MockPlayerManager_CreatePlayer_Call {
+func (_c *MockPlayerManager_CreatePlayer_Call) RunAndReturn(run func(phone string, chatID int64) (*app_model.Player, error)) *MockPlayerManager_CreatePlayer_Call {
 	_c.Call.Return(run)
 	return _c
 }
 
 // FindByChatID provides a mock function for the type MockPlayerManager
-func (_mock *MockPlayerManager) FindByChatID(chatID int) (*models.Player, error) {
+func (_mock *MockPlayerManager) FindByChatID(chatID int64) (*app_model.Player, error) {
 	ret := _mock.Called(chatID)
 
 	if len(ret) == 0 {
 		panic("no return value specified for FindByChatID")
 	}
 
-	var r0 *models.Player
+	var r0 *app_model.Player
 	var r1 error
-	if returnFunc, ok := ret.Get(0).(func(int) (*models.Player, error)); ok {
+	if returnFunc, ok := ret.Get(0).(func(int64) (*app_model.Player, error)); ok {
 		return returnFunc(chatID)
 	}
-	if returnFunc, ok := ret.Get(0).(func(int) *models.Player); ok {
+	if returnFunc, ok := ret.Get(0).(func(int64) *app_model.Player); ok {
 		r0 = returnFunc(chatID)
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(*models.Player)
+			r0 = ret.Get(0).(*app_model.Player)
 		}
 	}
-	if returnFunc, ok := ret.Get(1).(func(int) error); ok {
+	if returnFunc, ok := ret.Get(1).(func(int64) error); ok {
 		r1 = returnFunc(chatID)
 	} else {
 		r1 = ret.Error(1)
@@ -415,16 +427,16 @@ type MockPlayerManager_FindByChatID_Call struct {
 }
 
 // FindByChatID is a helper method to define mock.On call
-//   - chatID int
+//   - chatID int64
 func (_e *MockPlayerManager_Expecter) FindByChatID(chatID interface{}) *MockPlayerManager_FindByChatID_Call {
 	return &MockPlayerManager_FindByChatID_Call{Call: _e.mock.On("FindByChatID", chatID)}
 }
 
-func (_c *MockPlayerManager_FindByChatID_Call) Run(run func(chatID int)) *MockPlayerManager_FindByChatID_Call {
+func (_c *MockPlayerManager_FindByChatID_Call) Run(run func(chatID int64)) *MockPlayerManager_FindByChatID_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		var arg0 int
+		var arg0 int64
 		if args[0] != nil {
-			arg0 = args[0].(int)
+			arg0 = args[0].(int64)
 		}
 		run(
 			arg0,
@@ -433,34 +445,34 @@ func (_c *MockPlayerManager_FindByChatID_Call) Run(run func(chatID int)) *MockPl
 	return _c
 }
 
-func (_c *MockPlayerManager_FindByChatID_Call) Return(player *models.Player, err error) *MockPlayerManager_FindByChatID_Call {
+func (_c *MockPlayerManager_FindByChatID_Call) Return(player *app_model.Player, err error) *MockPlayerManager_FindByChatID_Call {
 	_c.Call.Return(player, err)
 	return _c
 }
 
-func (_c *MockPlayerManager_FindByChatID_Call) RunAndReturn(run func(chatID int) (*models.Player, error)) *MockPlayerManager_FindByChatID_Call {
+func (_c *MockPlayerManager_FindByChatID_Call) RunAndReturn(run func(chatID int64) (*app_model.Player, error)) *MockPlayerManager_FindByChatID_Call {
 	_c.Call.Return(run)
 	return _c
 }
 
 // FindByPhone provides a mock function for the type MockPlayerManager
-func (_mock *MockPlayerManager) FindByPhone(phone string) (*models.Player, error) {
+func (_mock *MockPlayerManager) FindByPhone(phone string) (*app_model.Player, error) {
 	ret := _mock.Called(phone)
 
 	if len(ret) == 0 {
 		panic("no return value specified for FindByPhone")
 	}
 
-	var r0 *models.Player
+	var r0 *app_model.Player
 	var r1 error
-	if returnFunc, ok := ret.Get(0).(func(string) (*models.Player, error)); ok {
+	if returnFunc, ok := ret.Get(0).(func(string) (*app_model.Player, error)); ok {
 		return returnFunc(phone)
 	}
-	if returnFunc, ok := ret.Get(0).(func(string) *models.Player); ok {
+	if returnFunc, ok := ret.Get(0).(func(string) *app_model.Player); ok {
 		r0 = returnFunc(phone)
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(*models.Player)
+			r0 = ret.Get(0).(*app_model.Player)
 		}
 	}
 	if returnFunc, ok := ret.Get(1).(func(string) error); ok {
@@ -495,12 +507,12 @@ func (_c *MockPlayerManager_FindByPhone_Call) Run(run func(phone string)) *MockP
 	return _c
 }
 
-func (_c *MockPlayerManager_FindByPhone_Call) Return(player *models.Player, err error) *MockPlayerManager_FindByPhone_Call {
+func (_c *MockPlayerManager_FindByPhone_Call) Return(player *app_model.Player, err error) *MockPlayerManager_FindByPhone_Call {
 	_c.Call.Return(player, err)
 	return _c
 }
 
-func (_c *MockPlayerManager_FindByPhone_Call) RunAndReturn(run func(phone string) (*models.Player, error)) *MockPlayerManager_FindByPhone_Call {
+func (_c *MockPlayerManager_FindByPhone_Call) RunAndReturn(run func(phone string) (*app_model.Player, error)) *MockPlayerManager_FindByPhone_Call {
 	_c.Call.Return(run)
 	return _c
 }
@@ -584,23 +596,23 @@ func (_c *MockTokenManager_BlockToken_Call) RunAndReturn(run func(tokenID uint64
 }
 
 // FindActualByPlayerID provides a mock function for the type MockTokenManager
-func (_mock *MockTokenManager) FindActualByPlayerID(playerID uint64) (*models.Token, error) {
+func (_mock *MockTokenManager) FindActualByPlayerID(playerID uint64) (*app_model.Token, error) {
 	ret := _mock.Called(playerID)
 
 	if len(ret) == 0 {
 		panic("no return value specified for FindActualByPlayerID")
 	}
 
-	var r0 *models.Token
+	var r0 *app_model.Token
 	var r1 error
-	if returnFunc, ok := ret.Get(0).(func(uint64) (*models.Token, error)); ok {
+	if returnFunc, ok := ret.Get(0).(func(uint64) (*app_model.Token, error)); ok {
 		return returnFunc(playerID)
 	}
-	if returnFunc, ok := ret.Get(0).(func(uint64) *models.Token); ok {
+	if returnFunc, ok := ret.Get(0).(func(uint64) *app_model.Token); ok {
 		r0 = returnFunc(playerID)
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(*models.Token)
+			r0 = ret.Get(0).(*app_model.Token)
 		}
 	}
 	if returnFunc, ok := ret.Get(1).(func(uint64) error); ok {
@@ -635,34 +647,34 @@ func (_c *MockTokenManager_FindActualByPlayerID_Call) Run(run func(playerID uint
 	return _c
 }
 
-func (_c *MockTokenManager_FindActualByPlayerID_Call) Return(token *models.Token, err error) *MockTokenManager_FindActualByPlayerID_Call {
+func (_c *MockTokenManager_FindActualByPlayerID_Call) Return(token *app_model.Token, err error) *MockTokenManager_FindActualByPlayerID_Call {
 	_c.Call.Return(token, err)
 	return _c
 }
 
-func (_c *MockTokenManager_FindActualByPlayerID_Call) RunAndReturn(run func(playerID uint64) (*models.Token, error)) *MockTokenManager_FindActualByPlayerID_Call {
+func (_c *MockTokenManager_FindActualByPlayerID_Call) RunAndReturn(run func(playerID uint64) (*app_model.Token, error)) *MockTokenManager_FindActualByPlayerID_Call {
 	_c.Call.Return(run)
 	return _c
 }
 
 // FindActualByToken provides a mock function for the type MockTokenManager
-func (_mock *MockTokenManager) FindActualByToken(token string) (*models.Token, error) {
+func (_mock *MockTokenManager) FindActualByToken(token string) (*app_model.Token, error) {
 	ret := _mock.Called(token)
 
 	if len(ret) == 0 {
 		panic("no return value specified for FindActualByToken")
 	}
 
-	var r0 *models.Token
+	var r0 *app_model.Token
 	var r1 error
-	if returnFunc, ok := ret.Get(0).(func(string) (*models.Token, error)); ok {
+	if returnFunc, ok := ret.Get(0).(func(string) (*app_model.Token, error)); ok {
 		return returnFunc(token)
 	}
-	if returnFunc, ok := ret.Get(0).(func(string) *models.Token); ok {
+	if returnFunc, ok := ret.Get(0).(func(string) *app_model.Token); ok {
 		r0 = returnFunc(token)
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(*models.Token)
+			r0 = ret.Get(0).(*app_model.Token)
 		}
 	}
 	if returnFunc, ok := ret.Get(1).(func(string) error); ok {
@@ -697,34 +709,34 @@ func (_c *MockTokenManager_FindActualByToken_Call) Run(run func(token string)) *
 	return _c
 }
 
-func (_c *MockTokenManager_FindActualByToken_Call) Return(token1 *models.Token, err error) *MockTokenManager_FindActualByToken_Call {
+func (_c *MockTokenManager_FindActualByToken_Call) Return(token1 *app_model.Token, err error) *MockTokenManager_FindActualByToken_Call {
 	_c.Call.Return(token1, err)
 	return _c
 }
 
-func (_c *MockTokenManager_FindActualByToken_Call) RunAndReturn(run func(token string) (*models.Token, error)) *MockTokenManager_FindActualByToken_Call {
+func (_c *MockTokenManager_FindActualByToken_Call) RunAndReturn(run func(token string) (*app_model.Token, error)) *MockTokenManager_FindActualByToken_Call {
 	_c.Call.Return(run)
 	return _c
 }
 
 // IssueToken provides a mock function for the type MockTokenManager
-func (_mock *MockTokenManager) IssueToken(playerID uint64) (*models.Token, error) {
+func (_mock *MockTokenManager) IssueToken(playerID uint64) (*app_model.Token, error) {
 	ret := _mock.Called(playerID)
 
 	if len(ret) == 0 {
 		panic("no return value specified for IssueToken")
 	}
 
-	var r0 *models.Token
+	var r0 *app_model.Token
 	var r1 error
-	if returnFunc, ok := ret.Get(0).(func(uint64) (*models.Token, error)); ok {
+	if returnFunc, ok := ret.Get(0).(func(uint64) (*app_model.Token, error)); ok {
 		return returnFunc(playerID)
 	}
-	if returnFunc, ok := ret.Get(0).(func(uint64) *models.Token); ok {
+	if returnFunc, ok := ret.Get(0).(func(uint64) *app_model.Token); ok {
 		r0 = returnFunc(playerID)
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(*models.Token)
+			r0 = ret.Get(0).(*app_model.Token)
 		}
 	}
 	if returnFunc, ok := ret.Get(1).(func(uint64) error); ok {
@@ -759,12 +771,12 @@ func (_c *MockTokenManager_IssueToken_Call) Run(run func(playerID uint64)) *Mock
 	return _c
 }
 
-func (_c *MockTokenManager_IssueToken_Call) Return(token *models.Token, err error) *MockTokenManager_IssueToken_Call {
+func (_c *MockTokenManager_IssueToken_Call) Return(token *app_model.Token, err error) *MockTokenManager_IssueToken_Call {
 	_c.Call.Return(token, err)
 	return _c
 }
 
-func (_c *MockTokenManager_IssueToken_Call) RunAndReturn(run func(playerID uint64) (*models.Token, error)) *MockTokenManager_IssueToken_Call {
+func (_c *MockTokenManager_IssueToken_Call) RunAndReturn(run func(playerID uint64) (*app_model.Token, error)) *MockTokenManager_IssueToken_Call {
 	_c.Call.Return(run)
 	return _c
 }
@@ -797,7 +809,7 @@ func (_m *MockUpdatesHandleManager) EXPECT() *MockUpdatesHandleManager_Expecter 
 }
 
 // HandleMsgWithContact provides a mock function for the type MockUpdatesHandleManager
-func (_mock *MockUpdatesHandleManager) HandleMsgWithContact(upd models.Update) error {
+func (_mock *MockUpdatesHandleManager) HandleMsgWithContact(upd tg_model.Update) error {
 	ret := _mock.Called(upd)
 
 	if len(ret) == 0 {
@@ -805,7 +817,7 @@ func (_mock *MockUpdatesHandleManager) HandleMsgWithContact(upd models.Update) e
 	}
 
 	var r0 error
-	if returnFunc, ok := ret.Get(0).(func(models.Update) error); ok {
+	if returnFunc, ok := ret.Get(0).(func(tg_model.Update) error); ok {
 		r0 = returnFunc(upd)
 	} else {
 		r0 = ret.Error(0)
@@ -819,16 +831,16 @@ type MockUpdatesHandleManager_HandleMsgWithContact_Call struct {
 }
 
 // HandleMsgWithContact is a helper method to define mock.On call
-//   - upd models.Update
+//   - upd tg_model.Update
 func (_e *MockUpdatesHandleManager_Expecter) HandleMsgWithContact(upd interface{}) *MockUpdatesHandleManager_HandleMsgWithContact_Call {
 	return &MockUpdatesHandleManager_HandleMsgWithContact_Call{Call: _e.mock.On("HandleMsgWithContact", upd)}
 }
 
-func (_c *MockUpdatesHandleManager_HandleMsgWithContact_Call) Run(run func(upd models.Update)) *MockUpdatesHandleManager_HandleMsgWithContact_Call {
+func (_c *MockUpdatesHandleManager_HandleMsgWithContact_Call) Run(run func(upd tg_model.Update)) *MockUpdatesHandleManager_HandleMsgWithContact_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		var arg0 models.Update
+		var arg0 tg_model.Update
 		if args[0] != nil {
-			arg0 = args[0].(models.Update)
+			arg0 = args[0].(tg_model.Update)
 		}
 		run(
 			arg0,
@@ -842,13 +854,13 @@ func (_c *MockUpdatesHandleManager_HandleMsgWithContact_Call) Return(err error) 
 	return _c
 }
 
-func (_c *MockUpdatesHandleManager_HandleMsgWithContact_Call) RunAndReturn(run func(upd models.Update) error) *MockUpdatesHandleManager_HandleMsgWithContact_Call {
+func (_c *MockUpdatesHandleManager_HandleMsgWithContact_Call) RunAndReturn(run func(upd tg_model.Update) error) *MockUpdatesHandleManager_HandleMsgWithContact_Call {
 	_c.Call.Return(run)
 	return _c
 }
 
 // HandleStartMsg provides a mock function for the type MockUpdatesHandleManager
-func (_mock *MockUpdatesHandleManager) HandleStartMsg(upd models.Update) error {
+func (_mock *MockUpdatesHandleManager) HandleStartMsg(upd tg_model.Update) error {
 	ret := _mock.Called(upd)
 
 	if len(ret) == 0 {
@@ -856,7 +868,7 @@ func (_mock *MockUpdatesHandleManager) HandleStartMsg(upd models.Update) error {
 	}
 
 	var r0 error
-	if returnFunc, ok := ret.Get(0).(func(models.Update) error); ok {
+	if returnFunc, ok := ret.Get(0).(func(tg_model.Update) error); ok {
 		r0 = returnFunc(upd)
 	} else {
 		r0 = ret.Error(0)
@@ -870,16 +882,16 @@ type MockUpdatesHandleManager_HandleStartMsg_Call struct {
 }
 
 // HandleStartMsg is a helper method to define mock.On call
-//   - upd models.Update
+//   - upd tg_model.Update
 func (_e *MockUpdatesHandleManager_Expecter) HandleStartMsg(upd interface{}) *MockUpdatesHandleManager_HandleStartMsg_Call {
 	return &MockUpdatesHandleManager_HandleStartMsg_Call{Call: _e.mock.On("HandleStartMsg", upd)}
 }
 
-func (_c *MockUpdatesHandleManager_HandleStartMsg_Call) Run(run func(upd models.Update)) *MockUpdatesHandleManager_HandleStartMsg_Call {
+func (_c *MockUpdatesHandleManager_HandleStartMsg_Call) Run(run func(upd tg_model.Update)) *MockUpdatesHandleManager_HandleStartMsg_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		var arg0 models.Update
+		var arg0 tg_model.Update
 		if args[0] != nil {
-			arg0 = args[0].(models.Update)
+			arg0 = args[0].(tg_model.Update)
 		}
 		run(
 			arg0,
@@ -893,7 +905,7 @@ func (_c *MockUpdatesHandleManager_HandleStartMsg_Call) Return(err error) *MockU
 	return _c
 }
 
-func (_c *MockUpdatesHandleManager_HandleStartMsg_Call) RunAndReturn(run func(upd models.Update) error) *MockUpdatesHandleManager_HandleStartMsg_Call {
+func (_c *MockUpdatesHandleManager_HandleStartMsg_Call) RunAndReturn(run func(upd tg_model.Update) error) *MockUpdatesHandleManager_HandleStartMsg_Call {
 	_c.Call.Return(run)
 	return _c
 }
@@ -926,23 +938,23 @@ func (_m *MockUpdatesManager) EXPECT() *MockUpdatesManager_Expecter {
 }
 
 // Get provides a mock function for the type MockUpdatesManager
-func (_mock *MockUpdatesManager) Get(offset int) ([]models.Update, error) {
+func (_mock *MockUpdatesManager) Get(offset int) ([]tg_model.Update, error) {
 	ret := _mock.Called(offset)
 
 	if len(ret) == 0 {
 		panic("no return value specified for Get")
 	}
 
-	var r0 []models.Update
+	var r0 []tg_model.Update
 	var r1 error
-	if returnFunc, ok := ret.Get(0).(func(int) ([]models.Update, error)); ok {
+	if returnFunc, ok := ret.Get(0).(func(int) ([]tg_model.Update, error)); ok {
 		return returnFunc(offset)
 	}
-	if returnFunc, ok := ret.Get(0).(func(int) []models.Update); ok {
+	if returnFunc, ok := ret.Get(0).(func(int) []tg_model.Update); ok {
 		r0 = returnFunc(offset)
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).([]models.Update)
+			r0 = ret.Get(0).([]tg_model.Update)
 		}
 	}
 	if returnFunc, ok := ret.Get(1).(func(int) error); ok {
@@ -977,18 +989,18 @@ func (_c *MockUpdatesManager_Get_Call) Run(run func(offset int)) *MockUpdatesMan
 	return _c
 }
 
-func (_c *MockUpdatesManager_Get_Call) Return(updates []models.Update, err error) *MockUpdatesManager_Get_Call {
+func (_c *MockUpdatesManager_Get_Call) Return(updates []tg_model.Update, err error) *MockUpdatesManager_Get_Call {
 	_c.Call.Return(updates, err)
 	return _c
 }
 
-func (_c *MockUpdatesManager_Get_Call) RunAndReturn(run func(offset int) ([]models.Update, error)) *MockUpdatesManager_Get_Call {
+func (_c *MockUpdatesManager_Get_Call) RunAndReturn(run func(offset int) ([]tg_model.Update, error)) *MockUpdatesManager_Get_Call {
 	_c.Call.Return(run)
 	return _c
 }
 
 // Process provides a mock function for the type MockUpdatesManager
-func (_mock *MockUpdatesManager) Process(updates []models.Update) {
+func (_mock *MockUpdatesManager) Process(updates []tg_model.Update) {
 	_mock.Called(updates)
 	return
 }
@@ -999,16 +1011,16 @@ type MockUpdatesManager_Process_Call struct {
 }
 
 // Process is a helper method to define mock.On call
-//   - updates []models.Update
+//   - updates []tg_model.Update
 func (_e *MockUpdatesManager_Expecter) Process(updates interface{}) *MockUpdatesManager_Process_Call {
 	return &MockUpdatesManager_Process_Call{Call: _e.mock.On("Process", updates)}
 }
 
-func (_c *MockUpdatesManager_Process_Call) Run(run func(updates []models.Update)) *MockUpdatesManager_Process_Call {
+func (_c *MockUpdatesManager_Process_Call) Run(run func(updates []tg_model.Update)) *MockUpdatesManager_Process_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		var arg0 []models.Update
+		var arg0 []tg_model.Update
 		if args[0] != nil {
-			arg0 = args[0].([]models.Update)
+			arg0 = args[0].([]tg_model.Update)
 		}
 		run(
 			arg0,
@@ -1022,7 +1034,7 @@ func (_c *MockUpdatesManager_Process_Call) Return() *MockUpdatesManager_Process_
 	return _c
 }
 
-func (_c *MockUpdatesManager_Process_Call) RunAndReturn(run func(updates []models.Update)) *MockUpdatesManager_Process_Call {
+func (_c *MockUpdatesManager_Process_Call) RunAndReturn(run func(updates []tg_model.Update)) *MockUpdatesManager_Process_Call {
 	_c.Run(run)
 	return _c
 }

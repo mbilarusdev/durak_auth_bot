@@ -2,13 +2,14 @@ package service
 
 import (
 	"log"
+	"strings"
 
-	"github.com/mbilarusdev/durak_auth_bot/internal/models"
+	tg_model "github.com/mbilarusdev/durak_auth_bot/internal/structs/tg/model"
 )
 
 type UpdatesHandleManager interface {
-	HandleMsgWithContact(upd models.Update) error
-	HandleStartMsg(upd models.Update) error
+	HandleMsgWithContact(upd tg_model.Update) error
+	HandleStartMsg(upd tg_model.Update) error
 }
 
 type UpdatesHandleService struct {
@@ -27,13 +28,14 @@ func NewUpdatesHandleService(
 	return updHandleService
 }
 
-func (service *UpdatesHandleService) HandleMsgWithContact(upd models.Update) error {
+func (service *UpdatesHandleService) HandleMsgWithContact(upd tg_model.Update) error {
+	purePhone := strings.ReplaceAll(upd.Message.Contact.PhoneNumber, " ", "")
 	log.Printf(
 		"Контакт получен: Имя=%s, Телефон=%s\n",
 		upd.Message.Contact.FirstName,
-		upd.Message.Contact.PhoneNumber,
+		purePhone,
 	)
-	player, err := service.playerService.FindByPhone(upd.Message.Contact.PhoneNumber)
+	player, err := service.playerService.FindByPhone(purePhone)
 	if err != nil {
 		service.msgService.Send("Произошла ошибка, попробуйте позже", upd.Message.Chat.ID)
 		return err
@@ -43,7 +45,7 @@ func (service *UpdatesHandleService) HandleMsgWithContact(upd models.Update) err
 		return err
 	}
 	if _, err = service.playerService.CreatePlayer(
-		upd.Message.Contact.PhoneNumber,
+		purePhone,
 		upd.Message.Chat.ID,
 	); err != nil {
 		service.msgService.Send("Произошла ошибка, попробуйте позже", upd.Message.Chat.ID)
@@ -53,7 +55,7 @@ func (service *UpdatesHandleService) HandleMsgWithContact(upd models.Update) err
 	return nil
 }
 
-func (service *UpdatesHandleService) HandleStartMsg(upd models.Update) error {
+func (service *UpdatesHandleService) HandleStartMsg(upd tg_model.Update) error {
 	player, err := service.playerService.FindByChatID(upd.Message.Chat.ID)
 	if err != nil {
 		service.msgService.Send("Произошла ошибка, попробуйте позже", upd.Message.Chat.ID)

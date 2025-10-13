@@ -1,4 +1,4 @@
-package models
+package tg_model
 
 type Message struct {
 	MessageID int64      `json:"message_id"`

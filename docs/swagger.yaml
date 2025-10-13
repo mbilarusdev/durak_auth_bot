@@ -1,0 +1,400 @@
+definitions:
+  github_com_mbilarusdev_durak_auth_bot_internal_structs_app_model.Token:
+    properties:
+      id:
+        example: 1
+        type: integer
+      jwt:
+        example: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9
+        type: string
+      player_id:
+        example: 1
+        type: integer
+      status:
+        allOf:
+        - $ref: '#/definitions/github_com_mbilarusdev_durak_auth_bot_internal_structs_app_model.TokenStatus'
+        example: available
+    type: object
+  github_com_mbilarusdev_durak_auth_bot_internal_structs_app_model.TokenStatus:
+    enum:
+    - available
+    - expired
+    - blocked
+    type: string
+    x-enum-varnames:
+    - TokenAvailable
+    - TokenExpired
+    - TokenBlocked
+  github_com_mbilarusdev_durak_auth_bot_internal_structs_app_request.ConfirmCodeRequest:
+    properties:
+      code:
+        example: "852469"
+        maxLength: 6
+        minLength: 6
+        type: string
+      phone_number:
+        example: "+79268566814"
+        type: string
+      username:
+        example: Vasiliy
+        maxLength: 20
+        minLength: 3
+        type: string
+    required:
+    - code
+    - phone_number
+    - username
+    type: object
+  github_com_mbilarusdev_durak_auth_bot_internal_structs_app_request.SendCodeRequest:
+    properties:
+      phone_number:
+        example: "+79268566814"
+        type: string
+    required:
+    - phone_number
+    type: object
+  net_err.NotFoundErr:
+    properties:
+      custom_code:
+        example: 13
+        type: integer
+      msg:
+        example: Сущность не найдена
+        type: string
+    type: object
+  net_err.ReadBodyErr:
+    properties:
+      custom_code:
+        example: 2
+        type: integer
+      msg:
+        example: Ошибка чтения тела запроса
+        type: string
+    type: object
+  net_err.ServerErr:
+    properties:
+      custom_code:
+        example: 1
+        type: integer
+      msg:
+        example: Ошибка сервера
+        type: string
+    type: object
+  net_err.TokenIncorrectErr:
+    properties:
+      custom_code:
+        example: 22
+        type: integer
+      msg:
+        example: Токен инкорректен
+        type: string
+    type: object
+  net_err.TokenNotProvidedErr:
+    properties:
+      custom_code:
+        example: 21
+        type: integer
+      msg:
+        example: Токен не передан
+        type: string
+    type: object
+  net_res.Body:
+    properties:
+      code:
+        type: integer
+      data: {}
+      err: {}
+    type: object
+info:
+  contact: {}
+paths:
+  /code/confirm:
+    post:
+      description: Подтверждает код, который был отправлен в Telegram
+      parameters:
+      - description: Запрос на подтверждение кода
+        in: body
+        name: confirm_code_request
+        required: true
+        schema:
+          $ref: '#/definitions/github_com_mbilarusdev_durak_auth_bot_internal_structs_app_request.ConfirmCodeRequest'
+      responses:
+        "200":
+          description: Код уже был подтвержден, токен повторно отправлен
+          headers:
+            Authorization:
+              description: JWT
+              type: string
+          schema:
+            allOf:
+            - $ref: '#/definitions/net_res.Body'
+            - properties:
+                code:
+                  type: integer
+                data:
+                  $ref: '#/definitions/github_com_mbilarusdev_durak_auth_bot_internal_structs_app_model.Token'
+                err:
+                  type: object
+              type: object
+        "201":
+          description: Код успешно подтвержден, токен выпущен
+          headers:
+            Authorization:
+              description: JWT
+              type: string
+          schema:
+            allOf:
+            - $ref: '#/definitions/net_res.Body'
+            - properties:
+                code:
+                  type: integer
+                data:
+                  $ref: '#/definitions/github_com_mbilarusdev_durak_auth_bot_internal_structs_app_model.Token'
+                err:
+                  type: object
+              type: object
+        "400":
+          description: Ошибка декодирования body
+          schema:
+            allOf:
+            - $ref: '#/definitions/net_res.Body'
+            - properties:
+                code:
+                  type: integer
+                data:
+                  type: object
+                err:
+                  $ref: '#/definitions/net_err.ReadBodyErr'
+              type: object
+        "404":
+          description: Игрок с данным номером телефона не найден
+          schema:
+            allOf:
+            - $ref: '#/definitions/net_res.Body'
+            - properties:
+                code:
+                  type: integer
+                data:
+                  type: object
+                err:
+                  $ref: '#/definitions/net_err.NotFoundErr'
+              type: object
+        "500":
+          description: Ошибка при проверке/выпуске токена
+          schema:
+            allOf:
+            - $ref: '#/definitions/net_res.Body'
+            - properties:
+                code:
+                  type: integer
+                data:
+                  type: object
+                err:
+                  $ref: '#/definitions/net_err.ServerErr'
+              type: object
+      summary: Confirm code
+      tags:
+      - Codes
+  /code/send:
+    post:
+      description: Отправляет код в Telegram чат, по номеру телефона
+      parameters:
+      - description: Запрос на отправку кода
+        in: body
+        name: send_code_request
+        required: true
+        schema:
+          $ref: '#/definitions/github_com_mbilarusdev_durak_auth_bot_internal_structs_app_request.SendCodeRequest'
+      responses:
+        "201":
+          description: Код успешно отправлен
+          schema:
+            allOf:
+            - $ref: '#/definitions/net_res.Body'
+            - properties:
+                code:
+                  type: integer
+                data:
+                  type: object
+                err:
+                  type: object
+              type: object
+        "400":
+          description: Ошибка декодирования body
+          schema:
+            allOf:
+            - $ref: '#/definitions/net_res.Body'
+            - properties:
+                code:
+                  type: integer
+                data:
+                  type: object
+                err:
+                  $ref: '#/definitions/net_err.ReadBodyErr'
+              type: object
+        "404":
+          description: Игрок с данным номером телефона не найден
+          schema:
+            allOf:
+            - $ref: '#/definitions/net_res.Body'
+            - properties:
+                code:
+                  type: integer
+                data:
+                  type: object
+                err:
+                  $ref: '#/definitions/net_err.NotFoundErr'
+              type: object
+        "500":
+          description: Ошибка при создании/отправке токена
+          schema:
+            allOf:
+            - $ref: '#/definitions/net_res.Body'
+            - properties:
+                code:
+                  type: integer
+                data:
+                  type: object
+                err:
+                  $ref: '#/definitions/net_err.ServerErr'
+              type: object
+      summary: Send code
+      tags:
+      - Codes
+  /login/check:
+    post:
+      description: Возвращает информацию о том, актуален ли авторизационный токен
+      parameters:
+      - default: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9
+        description: Bearer token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      responses:
+        "200":
+          description: Токен действителен, вы авторизованы
+          headers:
+            Authorization:
+              description: JWT
+              type: string
+          schema:
+            allOf:
+            - $ref: '#/definitions/net_res.Body'
+            - properties:
+                code:
+                  type: integer
+                data:
+                  $ref: '#/definitions/github_com_mbilarusdev_durak_auth_bot_internal_structs_app_model.Token'
+                err:
+                  type: object
+              type: object
+        "400":
+          description: Токен не передан
+          schema:
+            allOf:
+            - $ref: '#/definitions/net_res.Body'
+            - properties:
+                code:
+                  type: integer
+                data:
+                  type: object
+                err:
+                  $ref: '#/definitions/net_err.TokenNotProvidedErr'
+              type: object
+        "404":
+          description: Токен инкорректен
+          schema:
+            allOf:
+            - $ref: '#/definitions/net_res.Body'
+            - properties:
+                code:
+                  type: integer
+                data:
+                  type: object
+                err:
+                  $ref: '#/definitions/net_err.TokenIncorrectErr'
+              type: object
+        "500":
+          description: Ошибка при проверке/выпуске токена
+          schema:
+            allOf:
+            - $ref: '#/definitions/net_res.Body'
+            - properties:
+                code:
+                  type: integer
+                data:
+                  type: object
+                err:
+                  $ref: '#/definitions/net_err.ServerErr'
+              type: object
+      summary: Check auth
+      tags:
+      - Auth
+  /logout:
+    post:
+      description: Делает логаут, блокирует токен
+      parameters:
+      - default: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9
+        description: Bearer JWT
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      responses:
+        "200":
+          description: Вы успешно удалили токен!
+          schema:
+            allOf:
+            - $ref: '#/definitions/net_res.Body'
+            - properties:
+                code:
+                  type: integer
+                data:
+                  type: object
+                err:
+                  type: object
+              type: object
+        "400":
+          description: Токен не передан
+          schema:
+            allOf:
+            - $ref: '#/definitions/net_res.Body'
+            - properties:
+                code:
+                  type: integer
+                data:
+                  type: object
+                err:
+                  $ref: '#/definitions/net_err.TokenNotProvidedErr'
+              type: object
+        "404":
+          description: Токен инкорректен
+          schema:
+            allOf:
+            - $ref: '#/definitions/net_res.Body'
+            - properties:
+                code:
+                  type: integer
+                data:
+                  type: object
+                err:
+                  $ref: '#/definitions/net_err.TokenIncorrectErr'
+              type: object
+        "500":
+          description: Ошибка при проверке/блокировке токена
+          schema:
+            allOf:
+            - $ref: '#/definitions/net_res.Body'
+            - properties:
+                code:
+                  type: integer
+                data:
+                  type: object
+                err:
+                  $ref: '#/definitions/net_err.ServerErr'
+              type: object
+      summary: Logout
+      tags:
+      - Auth
+swagger: "2.0"

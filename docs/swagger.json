@@ -1,0 +1,673 @@
+{
+    "swagger": "2.0",
+    "info": {
+        "contact": {}
+    },
+    "paths": {
+        "/code/confirm": {
+            "post": {
+                "description": "Подтверждает код, который был отправлен в Telegram",
+                "tags": [
+                    "Codes"
+                ],
+                "summary": "Confirm code",
+                "parameters": [
+                    {
+                        "description": "Запрос на подтверждение кода",
+                        "name": "confirm_code_request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/github_com_mbilarusdev_durak_auth_bot_internal_structs_app_request.ConfirmCodeRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Код уже был подтвержден, токен повторно отправлен",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/net_res.Body"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "code": {
+                                            "type": "integer"
+                                        },
+                                        "data": {
+                                            "$ref": "#/definitions/github_com_mbilarusdev_durak_auth_bot_internal_structs_app_model.Token"
+                                        },
+                                        "err": {
+                                            "type": "object"
+                                        }
+                                    }
+                                }
+                            ]
+                        },
+                        "headers": {
+                            "Authorization": {
+                                "type": "string",
+                                "description": "JWT"
+                            }
+                        }
+                    },
+                    "201": {
+                        "description": "Код успешно подтвержден, токен выпущен",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/net_res.Body"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "code": {
+                                            "type": "integer"
+                                        },
+                                        "data": {
+                                            "$ref": "#/definitions/github_com_mbilarusdev_durak_auth_bot_internal_structs_app_model.Token"
+                                        },
+                                        "err": {
+                                            "type": "object"
+                                        }
+                                    }
+                                }
+                            ]
+                        },
+                        "headers": {
+                            "Authorization": {
+                                "type": "string",
+                                "description": "JWT"
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Ошибка декодирования body",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/net_res.Body"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "code": {
+                                            "type": "integer"
+                                        },
+                                        "data": {
+                                            "type": "object"
+                                        },
+                                        "err": {
+                                            "$ref": "#/definitions/net_err.ReadBodyErr"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "404": {
+                        "description": "Игрок с данным номером телефона не найден",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/net_res.Body"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "code": {
+                                            "type": "integer"
+                                        },
+                                        "data": {
+                                            "type": "object"
+                                        },
+                                        "err": {
+                                            "$ref": "#/definitions/net_err.NotFoundErr"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "500": {
+                        "description": "Ошибка при проверке/выпуске токена",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/net_res.Body"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "code": {
+                                            "type": "integer"
+                                        },
+                                        "data": {
+                                            "type": "object"
+                                        },
+                                        "err": {
+                                            "$ref": "#/definitions/net_err.ServerErr"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            }
+        },
+        "/code/send": {
+            "post": {
+                "description": "Отправляет код в Telegram чат, по номеру телефона",
+                "tags": [
+                    "Codes"
+                ],
+                "summary": "Send code",
+                "parameters": [
+                    {
+                        "description": "Запрос на отправку кода",
+                        "name": "send_code_request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/github_com_mbilarusdev_durak_auth_bot_internal_structs_app_request.SendCodeRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Код успешно отправлен",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/net_res.Body"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "code": {
+                                            "type": "integer"
+                                        },
+                                        "data": {
+                                            "type": "object"
+                                        },
+                                        "err": {
+                                            "type": "object"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "400": {
+                        "description": "Ошибка декодирования body",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/net_res.Body"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "code": {
+                                            "type": "integer"
+                                        },
+                                        "data": {
+                                            "type": "object"
+                                        },
+                                        "err": {
+                                            "$ref": "#/definitions/net_err.ReadBodyErr"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "404": {
+                        "description": "Игрок с данным номером телефона не найден",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/net_res.Body"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "code": {
+                                            "type": "integer"
+                                        },
+                                        "data": {
+                                            "type": "object"
+                                        },
+                                        "err": {
+                                            "$ref": "#/definitions/net_err.NotFoundErr"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "500": {
+                        "description": "Ошибка при создании/отправке токена",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/net_res.Body"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "code": {
+                                            "type": "integer"
+                                        },
+                                        "data": {
+                                            "type": "object"
+                                        },
+                                        "err": {
+                                            "$ref": "#/definitions/net_err.ServerErr"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            }
+        },
+        "/login/check": {
+            "post": {
+                "description": "Возвращает информацию о том, актуален ли авторизационный токен",
+                "tags": [
+                    "Auth"
+                ],
+                "summary": "Check auth",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "default": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9",
+                        "description": "Bearer token",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Токен действителен, вы авторизованы",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/net_res.Body"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "code": {
+                                            "type": "integer"
+                                        },
+                                        "data": {
+                                            "$ref": "#/definitions/github_com_mbilarusdev_durak_auth_bot_internal_structs_app_model.Token"
+                                        },
+                                        "err": {
+                                            "type": "object"
+                                        }
+                                    }
+                                }
+                            ]
+                        },
+                        "headers": {
+                            "Authorization": {
+                                "type": "string",
+                                "description": "JWT"
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Токен не передан",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/net_res.Body"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "code": {
+                                            "type": "integer"
+                                        },
+                                        "data": {
+                                            "type": "object"
+                                        },
+                                        "err": {
+                                            "$ref": "#/definitions/net_err.TokenNotProvidedErr"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "404": {
+                        "description": "Токен инкорректен",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/net_res.Body"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "code": {
+                                            "type": "integer"
+                                        },
+                                        "data": {
+                                            "type": "object"
+                                        },
+                                        "err": {
+                                            "$ref": "#/definitions/net_err.TokenIncorrectErr"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "500": {
+                        "description": "Ошибка при проверке/выпуске токена",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/net_res.Body"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "code": {
+                                            "type": "integer"
+                                        },
+                                        "data": {
+                                            "type": "object"
+                                        },
+                                        "err": {
+                                            "$ref": "#/definitions/net_err.ServerErr"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            }
+        },
+        "/logout": {
+            "post": {
+                "description": "Делает логаут, блокирует токен",
+                "tags": [
+                    "Auth"
+                ],
+                "summary": "Logout",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "default": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9",
+                        "description": "Bearer JWT",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Вы успешно удалили токен!",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/net_res.Body"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "code": {
+                                            "type": "integer"
+                                        },
+                                        "data": {
+                                            "type": "object"
+                                        },
+                                        "err": {
+                                            "type": "object"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "400": {
+                        "description": "Токен не передан",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/net_res.Body"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "code": {
+                                            "type": "integer"
+                                        },
+                                        "data": {
+                                            "type": "object"
+                                        },
+                                        "err": {
+                                            "$ref": "#/definitions/net_err.TokenNotProvidedErr"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "404": {
+                        "description": "Токен инкорректен",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/net_res.Body"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "code": {
+                                            "type": "integer"
+                                        },
+                                        "data": {
+                                            "type": "object"
+                                        },
+                                        "err": {
+                                            "$ref": "#/definitions/net_err.TokenIncorrectErr"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "500": {
+                        "description": "Ошибка при проверке/блокировке токена",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/net_res.Body"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "code": {
+                                            "type": "integer"
+                                        },
+                                        "data": {
+                                            "type": "object"
+                                        },
+                                        "err": {
+                                            "$ref": "#/definitions/net_err.ServerErr"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "definitions": {
+        "github_com_mbilarusdev_durak_auth_bot_internal_structs_app_model.Token": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "integer",
+                    "example": 1
+                },
+                "jwt": {
+                    "type": "string",
+                    "example": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9"
+                },
+                "player_id": {
+                    "type": "integer",
+                    "example": 1
+                },
+                "status": {
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/github_com_mbilarusdev_durak_auth_bot_internal_structs_app_model.TokenStatus"
+                        }
+                    ],
+                    "example": "available"
+                }
+            }
+        },
+        "github_com_mbilarusdev_durak_auth_bot_internal_structs_app_model.TokenStatus": {
+            "type": "string",
+            "enum": [
+                "available",
+                "expired",
+                "blocked"
+            ],
+            "x-enum-varnames": [
+                "TokenAvailable",
+                "TokenExpired",
+                "TokenBlocked"
+            ]
+        },
+        "github_com_mbilarusdev_durak_auth_bot_internal_structs_app_request.ConfirmCodeRequest": {
+            "type": "object",
+            "required": [
+                "code",
+                "phone_number",
+                "username"
+            ],
+            "properties": {
+                "code": {
+                    "type": "string",
+                    "maxLength": 6,
+                    "minLength": 6,
+                    "example": "852469"
+                },
+                "phone_number": {
+                    "type": "string",
+                    "example": "+79268566814"
+                },
+                "username": {
+                    "type": "string",
+                    "maxLength": 20,
+                    "minLength": 3,
+                    "example": "Vasiliy"
+                }
+            }
+        },
+        "github_com_mbilarusdev_durak_auth_bot_internal_structs_app_request.SendCodeRequest": {
+            "type": "object",
+            "required": [
+                "phone_number"
+            ],
+            "properties": {
+                "phone_number": {
+                    "type": "string",
+                    "example": "+79268566814"
+                }
+            }
+        },
+        "net_err.NotFoundErr": {
+            "type": "object",
+            "properties": {
+                "custom_code": {
+                    "type": "integer",
+                    "example": 13
+                },
+                "msg": {
+                    "type": "string",
+                    "example": "Сущность не найдена"
+                }
+            }
+        },
+        "net_err.ReadBodyErr": {
+            "type": "object",
+            "properties": {
+                "custom_code": {
+                    "type": "integer",
+                    "example": 2
+                },
+                "msg": {
+                    "type": "string",
+                    "example": "Ошибка чтения тела запроса"
+                }
+            }
+        },
+        "net_err.ServerErr": {
+            "type": "object",
+            "properties": {
+                "custom_code": {
+                    "type": "integer",
+                    "example": 1
+                },
+                "msg": {
+                    "type": "string",
+                    "example": "Ошибка сервера"
+                }
+            }
+        },
+        "net_err.TokenIncorrectErr": {
+            "type": "object",
+            "properties": {
+                "custom_code": {
+                    "type": "integer",
+                    "example": 22
+                },
+                "msg": {
+                    "type": "string",
+                    "example": "Токен инкорректен"
+                }
+            }
+        },
+        "net_err.TokenNotProvidedErr": {
+            "type": "object",
+            "properties": {
+                "custom_code": {
+                    "type": "integer",
+                    "example": 21
+                },
+                "msg": {
+                    "type": "string",
+                    "example": "Токен не передан"
+                }
+            }
+        },
+        "net_res.Body": {
+            "type": "object",
+            "properties": {
+                "code": {
+                    "type": "integer"
+                },
+                "data": {},
+                "err": {}
+            }
+        }
+    }
+}

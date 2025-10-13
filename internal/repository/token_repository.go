@@ -8,13 +8,14 @@ import (
 
 	"github.com/jackc/pgx/v5"
 	"github.com/mbilarusdev/durak_auth_bot/internal/interfaces"
-	"github.com/mbilarusdev/durak_auth_bot/internal/models"
+	app_model "github.com/mbilarusdev/durak_auth_bot/internal/structs/app/model"
+	app_option "github.com/mbilarusdev/durak_auth_bot/internal/structs/app/option"
 )
 
 type TokenProvider interface {
-	Insert(token *models.Token) (uint64, error)
-	FindOne(options *models.TokenFindOptions) (*models.Token, error)
-	UpdateStatus(ID uint64, status string) error
+	Insert(token *app_model.Token) (uint64, error)
+	FindOne(options *app_option.TokenFindOptions) (*app_model.Token, error)
+	UpdateStatus(ID uint64, status app_model.TokenStatus) error
 }
 
 type TokenRepository struct {
@@ -28,7 +29,7 @@ func NewTokenRepository(pool interfaces.DBPool) *TokenRepository {
 	return repository
 }
 
-func (repository *TokenRepository) Insert(token *models.Token) (uint64, error) {
+func (repository *TokenRepository) Insert(token *app_model.Token) (uint64, error) {
 	ctx := context.Background()
 	conn, err := repository.pool.Acquire(ctx)
 	if err != nil {
@@ -51,8 +52,8 @@ func (repository *TokenRepository) Insert(token *models.Token) (uint64, error) {
 }
 
 func (repository *TokenRepository) FindOne(
-	options *models.TokenFindOptions,
-) (*models.Token, error) {
+	options *app_option.TokenFindOptions,
+) (*app_model.Token, error) {
 	ctx := context.Background()
 	conn, err := repository.pool.Acquire(ctx)
 	if err != nil {
@@ -77,7 +78,7 @@ func (repository *TokenRepository) FindOne(
 	}
 
 	query = strings.TrimSuffix(query, "AND ") + "LIMIT 1;"
-	findedToken := new(models.Token)
+	findedToken := new(app_model.Token)
 	if err := conn.QueryRow(ctx, query, args...).Scan(&findedToken.ID, &findedToken.PlayerID, &findedToken.Jwt, &findedToken.Status); err != nil {
 		if err == pgx.ErrNoRows {
 			log.Println("Не найдено токена по данному поисковому запросу")
@@ -89,7 +90,7 @@ func (repository *TokenRepository) FindOne(
 	return findedToken, nil
 }
 
-func (repository *TokenRepository) UpdateStatus(ID uint64, status string) error {
+func (repository *TokenRepository) UpdateStatus(ID uint64, status app_model.TokenStatus) error {
 	ctx := context.Background()
 	conn, err := repository.pool.Acquire(ctx)
 	if err != nil {

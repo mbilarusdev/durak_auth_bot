@@ -1,4 +1,4 @@
-package models
+package tg_model
 
 type User struct {
 	ID           int    `json:"id"`

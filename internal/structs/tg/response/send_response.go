@@ -1,4 +1,4 @@
-package models
+package tg_response
 
 type SendResponse struct {
 	Ok               bool           `json:"ok"`

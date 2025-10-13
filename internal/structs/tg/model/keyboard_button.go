@@ -1,4 +1,4 @@
-package models
+package tg_model
 
 type KeyboardButton struct {
 	Text           string `json:"text"`

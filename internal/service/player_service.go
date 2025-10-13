@@ -4,14 +4,15 @@ import (
 	"time"
 
 	"github.com/jackc/pgx/v5"
-	"github.com/mbilarusdev/durak_auth_bot/internal/models"
 	"github.com/mbilarusdev/durak_auth_bot/internal/repository"
+	app_model "github.com/mbilarusdev/durak_auth_bot/internal/structs/app/model"
+	app_option "github.com/mbilarusdev/durak_auth_bot/internal/structs/app/option"
 )
 
 type PlayerManager interface {
-	FindByPhone(phone string) (*models.Player, error)
-	FindByChatID(chatID int64) (*models.Player, error)
-	CreatePlayer(phone string, chatID int64) (*models.Player, error)
+	FindByPhone(phone string) (*app_model.Player, error)
+	FindByChatID(chatID int64) (*app_model.Player, error)
+	CreatePlayer(phone string, chatID int64) (*app_model.Player, error)
 }
 
 type PlayerService struct {
@@ -24,24 +25,24 @@ func NewPlayerService(playerRepository repository.PlayerProvider) *PlayerService
 	return service
 }
 
-func (service *PlayerService) FindByPhone(phone string) (*models.Player, error) {
+func (service *PlayerService) FindByPhone(phone string) (*app_model.Player, error) {
 	player, err := service.playerRepository.FindOne(
-		&models.PlayerFindOptions{PhoneNumber: phone},
+		&app_option.PlayerFindOptions{PhoneNumber: phone},
 	)
 
 	return player, err
 }
 
-func (service *PlayerService) FindByChatID(chatID int64) (*models.Player, error) {
+func (service *PlayerService) FindByChatID(chatID int64) (*app_model.Player, error) {
 	player, err := service.playerRepository.FindOne(
-		&models.PlayerFindOptions{ChatID: chatID},
+		&app_option.PlayerFindOptions{ChatID: chatID},
 	)
 
 	return player, err
 }
 
-func (service *PlayerService) CreatePlayer(phone string, chatID int64) (*models.Player, error) {
-	newPlayerID, err := service.playerRepository.Insert(&models.Player{
+func (service *PlayerService) CreatePlayer(phone string, chatID int64) (*app_model.Player, error) {
+	newPlayerID, err := service.playerRepository.Insert(&app_model.Player{
 		PhoneNumber: phone,
 		ChatID:      chatID,
 		CreatedAt:   time.Now().UTC().UnixMilli(),
@@ -50,7 +51,7 @@ func (service *PlayerService) CreatePlayer(phone string, chatID int64) (*models.
 		return nil, err
 	}
 
-	player, err := service.playerRepository.FindOne(&models.PlayerFindOptions{ID: newPlayerID})
+	player, err := service.playerRepository.FindOne(&app_option.PlayerFindOptions{ID: newPlayerID})
 	if err != nil && err != pgx.ErrNoRows {
 		return nil, err
 	}

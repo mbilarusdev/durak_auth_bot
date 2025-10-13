@@ -8,7 +8,7 @@ import (
 	"net/http"
 
 	"github.com/mbilarusdev/durak_auth_bot/internal/common"
-	"github.com/mbilarusdev/durak_auth_bot/internal/models"
+	tg_response "github.com/mbilarusdev/durak_auth_bot/internal/structs/tg/response"
 )
 
 const (
@@ -17,7 +17,7 @@ const (
 
 type TgNetworkManager interface {
 	Get(method string) ([]byte, error)
-	Post(method string, data []byte) (*models.SendResponse, error)
+	Post(method string, data []byte) (*tg_response.SendResponse, error)
 }
 
 type TelegramClient struct{}
@@ -38,7 +38,10 @@ func (tgClient *TelegramClient) Get(method string) ([]byte, error) {
 	return body, nil
 }
 
-func (tgClient *TelegramClient) Post(method string, data []byte) (*models.SendResponse, error) {
+func (tgClient *TelegramClient) Post(
+	method string,
+	data []byte,
+) (*tg_response.SendResponse, error) {
 	url := fmt.Sprintf(tgApiUrl+"%s/%s", common.Conf.Token, method)
 	req, err := http.NewRequest("POST", url, bytes.NewBuffer(data))
 	if err != nil {
@@ -52,7 +55,7 @@ func (tgClient *TelegramClient) Post(method string, data []byte) (*models.SendRe
 	}
 	defer resp.Body.Close()
 	responseBody, _ := io.ReadAll(resp.Body)
-	var sendResp models.SendResponse
+	var sendResp tg_response.SendResponse
 	json.Unmarshal(responseBody, &sendResp)
 	return &sendResp, nil
 }

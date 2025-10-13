@@ -5,7 +5,8 @@
 package repository
 
 import (
-	"github.com/mbilarusdev/durak_auth_bot/internal/models"
+	"github.com/mbilarusdev/durak_auth_bot/internal/structs/app/model"
+	"github.com/mbilarusdev/durak_auth_bot/internal/structs/app/option"
 	mock "github.com/stretchr/testify/mock"
 )
 
@@ -36,12 +37,12 @@ func (_m *MockCodeProvider) EXPECT() *MockCodeProvider_Expecter {
 	return &MockCodeProvider_Expecter{mock: &_m.Mock}
 }
 
-// DelCode provides a mock function for the type MockCodeProvider
-func (_mock *MockCodeProvider) DelCode(phoneNumber string) error {
+// Del provides a mock function for the type MockCodeProvider
+func (_mock *MockCodeProvider) Del(phoneNumber string) error {
 	ret := _mock.Called(phoneNumber)
 
 	if len(ret) == 0 {
-		panic("no return value specified for DelCode")
+		panic("no return value specified for Del")
 	}
 
 	var r0 error
@@ -53,18 +54,18 @@ func (_mock *MockCodeProvider) DelCode(phoneNumber string) error {
 	return r0
 }
 
-// MockCodeProvider_DelCode_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'DelCode'
-type MockCodeProvider_DelCode_Call struct {
+// MockCodeProvider_Del_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'Del'
+type MockCodeProvider_Del_Call struct {
 	*mock.Call
 }
 
-// DelCode is a helper method to define mock.On call
+// Del is a helper method to define mock.On call
 //   - phoneNumber string
-func (_e *MockCodeProvider_Expecter) DelCode(phoneNumber interface{}) *MockCodeProvider_DelCode_Call {
-	return &MockCodeProvider_DelCode_Call{Call: _e.mock.On("DelCode", phoneNumber)}
+func (_e *MockCodeProvider_Expecter) Del(phoneNumber interface{}) *MockCodeProvider_Del_Call {
+	return &MockCodeProvider_Del_Call{Call: _e.mock.On("Del", phoneNumber)}
 }
 
-func (_c *MockCodeProvider_DelCode_Call) Run(run func(phoneNumber string)) *MockCodeProvider_DelCode_Call {
+func (_c *MockCodeProvider_Del_Call) Run(run func(phoneNumber string)) *MockCodeProvider_Del_Call {
 	_c.Call.Run(func(args mock.Arguments) {
 		var arg0 string
 		if args[0] != nil {
@@ -77,22 +78,22 @@ func (_c *MockCodeProvider_DelCode_Call) Run(run func(phoneNumber string)) *Mock
 	return _c
 }
 
-func (_c *MockCodeProvider_DelCode_Call) Return(err error) *MockCodeProvider_DelCode_Call {
+func (_c *MockCodeProvider_Del_Call) Return(err error) *MockCodeProvider_Del_Call {
 	_c.Call.Return(err)
 	return _c
 }
 
-func (_c *MockCodeProvider_DelCode_Call) RunAndReturn(run func(phoneNumber string) error) *MockCodeProvider_DelCode_Call {
+func (_c *MockCodeProvider_Del_Call) RunAndReturn(run func(phoneNumber string) error) *MockCodeProvider_Del_Call {
 	_c.Call.Return(run)
 	return _c
 }
 
-// GetCode provides a mock function for the type MockCodeProvider
-func (_mock *MockCodeProvider) GetCode(phoneNumber string) (string, error) {
+// Get provides a mock function for the type MockCodeProvider
+func (_mock *MockCodeProvider) Get(phoneNumber string) (string, error) {
 	ret := _mock.Called(phoneNumber)
 
 	if len(ret) == 0 {
-		panic("no return value specified for GetCode")
+		panic("no return value specified for Get")
 	}
 
 	var r0 string
@@ -113,18 +114,18 @@ func (_mock *MockCodeProvider) GetCode(phoneNumber string) (string, error) {
 	return r0, r1
 }
 
-// MockCodeProvider_GetCode_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'GetCode'
-type MockCodeProvider_GetCode_Call struct {
+// MockCodeProvider_Get_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'Get'
+type MockCodeProvider_Get_Call struct {
 	*mock.Call
 }
 
-// GetCode is a helper method to define mock.On call
+// Get is a helper method to define mock.On call
 //   - phoneNumber string
-func (_e *MockCodeProvider_Expecter) GetCode(phoneNumber interface{}) *MockCodeProvider_GetCode_Call {
-	return &MockCodeProvider_GetCode_Call{Call: _e.mock.On("GetCode", phoneNumber)}
+func (_e *MockCodeProvider_Expecter) Get(phoneNumber interface{}) *MockCodeProvider_Get_Call {
+	return &MockCodeProvider_Get_Call{Call: _e.mock.On("Get", phoneNumber)}
 }
 
-func (_c *MockCodeProvider_GetCode_Call) Run(run func(phoneNumber string)) *MockCodeProvider_GetCode_Call {
+func (_c *MockCodeProvider_Get_Call) Run(run func(phoneNumber string)) *MockCodeProvider_Get_Call {
 	_c.Call.Run(func(args mock.Arguments) {
 		var arg0 string
 		if args[0] != nil {
@@ -137,22 +138,22 @@ func (_c *MockCodeProvider_GetCode_Call) Run(run func(phoneNumber string)) *Mock
 	return _c
 }
 
-func (_c *MockCodeProvider_GetCode_Call) Return(s string, err error) *MockCodeProvider_GetCode_Call {
+func (_c *MockCodeProvider_Get_Call) Return(s string, err error) *MockCodeProvider_Get_Call {
 	_c.Call.Return(s, err)
 	return _c
 }
 
-func (_c *MockCodeProvider_GetCode_Call) RunAndReturn(run func(phoneNumber string) (string, error)) *MockCodeProvider_GetCode_Call {
+func (_c *MockCodeProvider_Get_Call) RunAndReturn(run func(phoneNumber string) (string, error)) *MockCodeProvider_Get_Call {
 	_c.Call.Return(run)
 	return _c
 }
 
-// SaveCode provides a mock function for the type MockCodeProvider
-func (_mock *MockCodeProvider) SaveCode(phoneNumber string, code string) error {
+// Save provides a mock function for the type MockCodeProvider
+func (_mock *MockCodeProvider) Save(phoneNumber string, code string) error {
 	ret := _mock.Called(phoneNumber, code)
 
 	if len(ret) == 0 {
-		panic("no return value specified for SaveCode")
+		panic("no return value specified for Save")
 	}
 
 	var r0 error
@@ -164,19 +165,19 @@ func (_mock *MockCodeProvider) SaveCode(phoneNumber string, code string) error {
 	return r0
 }
 
-// MockCodeProvider_SaveCode_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'SaveCode'
-type MockCodeProvider_SaveCode_Call struct {
+// MockCodeProvider_Save_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'Save'
+type MockCodeProvider_Save_Call struct {
 	*mock.Call
 }
 
-// SaveCode is a helper method to define mock.On call
+// Save is a helper method to define mock.On call
 //   - phoneNumber string
 //   - code string
-func (_e *MockCodeProvider_Expecter) SaveCode(phoneNumber interface{}, code interface{}) *MockCodeProvider_SaveCode_Call {
-	return &MockCodeProvider_SaveCode_Call{Call: _e.mock.On("SaveCode", phoneNumber, code)}
+func (_e *MockCodeProvider_Expecter) Save(phoneNumber interface{}, code interface{}) *MockCodeProvider_Save_Call {
+	return &MockCodeProvider_Save_Call{Call: _e.mock.On("Save", phoneNumber, code)}
 }
 
-func (_c *MockCodeProvider_SaveCode_Call) Run(run func(phoneNumber string, code string)) *MockCodeProvider_SaveCode_Call {
+func (_c *MockCodeProvider_Save_Call) Run(run func(phoneNumber string, code string)) *MockCodeProvider_Save_Call {
 	_c.Call.Run(func(args mock.Arguments) {
 		var arg0 string
 		if args[0] != nil {
@@ -194,12 +195,12 @@ func (_c *MockCodeProvider_SaveCode_Call) Run(run func(phoneNumber string, code 
 	return _c
 }
 
-func (_c *MockCodeProvider_SaveCode_Call) Return(err error) *MockCodeProvider_SaveCode_Call {
+func (_c *MockCodeProvider_Save_Call) Return(err error) *MockCodeProvider_Save_Call {
 	_c.Call.Return(err)
 	return _c
 }
 
-func (_c *MockCodeProvider_SaveCode_Call) RunAndReturn(run func(phoneNumber string, code string) error) *MockCodeProvider_SaveCode_Call {
+func (_c *MockCodeProvider_Save_Call) RunAndReturn(run func(phoneNumber string, code string) error) *MockCodeProvider_Save_Call {
 	_c.Call.Return(run)
 	return _c
 }
@@ -232,26 +233,26 @@ func (_m *MockPlayerProvider) EXPECT() *MockPlayerProvider_Expecter {
 }
 
 // FindOne provides a mock function for the type MockPlayerProvider
-func (_mock *MockPlayerProvider) FindOne(options *models.PlayerFindOptions) (*models.Player, error) {
+func (_mock *MockPlayerProvider) FindOne(options *app_option.PlayerFindOptions) (*app_model.Player, error) {
 	ret := _mock.Called(options)
 
 	if len(ret) == 0 {
 		panic("no return value specified for FindOne")
 	}
 
-	var r0 *models.Player
+	var r0 *app_model.Player
 	var r1 error
-	if returnFunc, ok := ret.Get(0).(func(*models.PlayerFindOptions) (*models.Player, error)); ok {
+	if returnFunc, ok := ret.Get(0).(func(*app_option.PlayerFindOptions) (*app_model.Player, error)); ok {
 		return returnFunc(options)
 	}
-	if returnFunc, ok := ret.Get(0).(func(*models.PlayerFindOptions) *models.Player); ok {
+	if returnFunc, ok := ret.Get(0).(func(*app_option.PlayerFindOptions) *app_model.Player); ok {
 		r0 = returnFunc(options)
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(*models.Player)
+			r0 = ret.Get(0).(*app_model.Player)
 		}
 	}
-	if returnFunc, ok := ret.Get(1).(func(*models.PlayerFindOptions) error); ok {
+	if returnFunc, ok := ret.Get(1).(func(*app_option.PlayerFindOptions) error); ok {
 		r1 = returnFunc(options)
 	} else {
 		r1 = ret.Error(1)
@@ -265,16 +266,16 @@ type MockPlayerProvider_FindOne_Call struct {
 }
 
 // FindOne is a helper method to define mock.On call
-//   - options *models.PlayerFindOptions
+//   - options *app_option.PlayerFindOptions
 func (_e *MockPlayerProvider_Expecter) FindOne(options interface{}) *MockPlayerProvider_FindOne_Call {
 	return &MockPlayerProvider_FindOne_Call{Call: _e.mock.On("FindOne", options)}
 }
 
-func (_c *MockPlayerProvider_FindOne_Call) Run(run func(options *models.PlayerFindOptions)) *MockPlayerProvider_FindOne_Call {
+func (_c *MockPlayerProvider_FindOne_Call) Run(run func(options *app_option.PlayerFindOptions)) *MockPlayerProvider_FindOne_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		var arg0 *models.PlayerFindOptions
+		var arg0 *app_option.PlayerFindOptions
 		if args[0] != nil {
-			arg0 = args[0].(*models.PlayerFindOptions)
+			arg0 = args[0].(*app_option.PlayerFindOptions)
 		}
 		run(
 			arg0,
@@ -283,18 +284,18 @@ func (_c *MockPlayerProvider_FindOne_Call) Run(run func(options *models.PlayerFi
 	return _c
 }
 
-func (_c *MockPlayerProvider_FindOne_Call) Return(player *models.Player, err error) *MockPlayerProvider_FindOne_Call {
+func (_c *MockPlayerProvider_FindOne_Call) Return(player *app_model.Player, err error) *MockPlayerProvider_FindOne_Call {
 	_c.Call.Return(player, err)
 	return _c
 }
 
-func (_c *MockPlayerProvider_FindOne_Call) RunAndReturn(run func(options *models.PlayerFindOptions) (*models.Player, error)) *MockPlayerProvider_FindOne_Call {
+func (_c *MockPlayerProvider_FindOne_Call) RunAndReturn(run func(options *app_option.PlayerFindOptions) (*app_model.Player, error)) *MockPlayerProvider_FindOne_Call {
 	_c.Call.Return(run)
 	return _c
 }
 
 // Insert provides a mock function for the type MockPlayerProvider
-func (_mock *MockPlayerProvider) Insert(player *models.Player) (uint64, error) {
+func (_mock *MockPlayerProvider) Insert(player *app_model.Player) (uint64, error) {
 	ret := _mock.Called(player)
 
 	if len(ret) == 0 {
@@ -303,15 +304,15 @@ func (_mock *MockPlayerProvider) Insert(player *models.Player) (uint64, error) {
 
 	var r0 uint64
 	var r1 error
-	if returnFunc, ok := ret.Get(0).(func(*models.Player) (uint64, error)); ok {
+	if returnFunc, ok := ret.Get(0).(func(*app_model.Player) (uint64, error)); ok {
 		return returnFunc(player)
 	}
-	if returnFunc, ok := ret.Get(0).(func(*models.Player) uint64); ok {
+	if returnFunc, ok := ret.Get(0).(func(*app_model.Player) uint64); ok {
 		r0 = returnFunc(player)
 	} else {
 		r0 = ret.Get(0).(uint64)
 	}
-	if returnFunc, ok := ret.Get(1).(func(*models.Player) error); ok {
+	if returnFunc, ok := ret.Get(1).(func(*app_model.Player) error); ok {
 		r1 = returnFunc(player)
 	} else {
 		r1 = ret.Error(1)
@@ -325,16 +326,16 @@ type MockPlayerProvider_Insert_Call struct {
 }
 
 // Insert is a helper method to define mock.On call
-//   - player *models.Player
+//   - player *app_model.Player
 func (_e *MockPlayerProvider_Expecter) Insert(player interface{}) *MockPlayerProvider_Insert_Call {
 	return &MockPlayerProvider_Insert_Call{Call: _e.mock.On("Insert", player)}
 }
 
-func (_c *MockPlayerProvider_Insert_Call) Run(run func(player *models.Player)) *MockPlayerProvider_Insert_Call {
+func (_c *MockPlayerProvider_Insert_Call) Run(run func(player *app_model.Player)) *MockPlayerProvider_Insert_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		var arg0 *models.Player
+		var arg0 *app_model.Player
 		if args[0] != nil {
-			arg0 = args[0].(*models.Player)
+			arg0 = args[0].(*app_model.Player)
 		}
 		run(
 			arg0,
@@ -348,7 +349,7 @@ func (_c *MockPlayerProvider_Insert_Call) Return(v uint64, err error) *MockPlaye
 	return _c
 }
 
-func (_c *MockPlayerProvider_Insert_Call) RunAndReturn(run func(player *models.Player) (uint64, error)) *MockPlayerProvider_Insert_Call {
+func (_c *MockPlayerProvider_Insert_Call) RunAndReturn(run func(player *app_model.Player) (uint64, error)) *MockPlayerProvider_Insert_Call {
 	_c.Call.Return(run)
 	return _c
 }
@@ -381,26 +382,26 @@ func (_m *MockTokenProvider) EXPECT() *MockTokenProvider_Expecter {
 }
 
 // FindOne provides a mock function for the type MockTokenProvider
-func (_mock *MockTokenProvider) FindOne(options *models.TokenFindOptions) (*models.Token, error) {
+func (_mock *MockTokenProvider) FindOne(options *app_option.TokenFindOptions) (*app_model.Token, error) {
 	ret := _mock.Called(options)
 
 	if len(ret) == 0 {
 		panic("no return value specified for FindOne")
 	}
 
-	var r0 *models.Token
+	var r0 *app_model.Token
 	var r1 error
-	if returnFunc, ok := ret.Get(0).(func(*models.TokenFindOptions) (*models.Token, error)); ok {
+	if returnFunc, ok := ret.Get(0).(func(*app_option.TokenFindOptions) (*app_model.Token, error)); ok {
 		return returnFunc(options)
 	}
-	if returnFunc, ok := ret.Get(0).(func(*models.TokenFindOptions) *models.Token); ok {
+	if returnFunc, ok := ret.Get(0).(func(*app_option.TokenFindOptions) *app_model.Token); ok {
 		r0 = returnFunc(options)
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(*models.Token)
+			r0 = ret.Get(0).(*app_model.Token)
 		}
 	}
-	if returnFunc, ok := ret.Get(1).(func(*models.TokenFindOptions) error); ok {
+	if returnFunc, ok := ret.Get(1).(func(*app_option.TokenFindOptions) error); ok {
 		r1 = returnFunc(options)
 	} else {
 		r1 = ret.Error(1)
@@ -414,16 +415,16 @@ type MockTokenProvider_FindOne_Call struct {
 }
 
 // FindOne is a helper method to define mock.On call
-//   - options *models.TokenFindOptions
+//   - options *app_option.TokenFindOptions
 func (_e *MockTokenProvider_Expecter) FindOne(options interface{}) *MockTokenProvider_FindOne_Call {
 	return &MockTokenProvider_FindOne_Call{Call: _e.mock.On("FindOne", options)}
 }
 
-func (_c *MockTokenProvider_FindOne_Call) Run(run func(options *models.TokenFindOptions)) *MockTokenProvider_FindOne_Call {
+func (_c *MockTokenProvider_FindOne_Call) Run(run func(options *app_option.TokenFindOptions)) *MockTokenProvider_FindOne_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		var arg0 *models.TokenFindOptions
+		var arg0 *app_option.TokenFindOptions
 		if args[0] != nil {
-			arg0 = args[0].(*models.TokenFindOptions)
+			arg0 = args[0].(*app_option.TokenFindOptions)
 		}
 		run(
 			arg0,
@@ -432,18 +433,18 @@ func (_c *MockTokenProvider_FindOne_Call) Run(run func(options *models.TokenFind
 	return _c
 }
 
-func (_c *MockTokenProvider_FindOne_Call) Return(token *models.Token, err error) *MockTokenProvider_FindOne_Call {
+func (_c *MockTokenProvider_FindOne_Call) Return(token *app_model.Token, err error) *MockTokenProvider_FindOne_Call {
 	_c.Call.Return(token, err)
 	return _c
 }
 
-func (_c *MockTokenProvider_FindOne_Call) RunAndReturn(run func(options *models.TokenFindOptions) (*models.Token, error)) *MockTokenProvider_FindOne_Call {
+func (_c *MockTokenProvider_FindOne_Call) RunAndReturn(run func(options *app_option.TokenFindOptions) (*app_model.Token, error)) *MockTokenProvider_FindOne_Call {
 	_c.Call.Return(run)
 	return _c
 }
 
 // Insert provides a mock function for the type MockTokenProvider
-func (_mock *MockTokenProvider) Insert(token *models.Token) (uint64, error) {
+func (_mock *MockTokenProvider) Insert(token *app_model.Token) (uint64, error) {
 	ret := _mock.Called(token)
 
 	if len(ret) == 0 {
@@ -452,15 +453,15 @@ func (_mock *MockTokenProvider) Insert(token *models.Token) (uint64, error) {
 
 	var r0 uint64
 	var r1 error
-	if returnFunc, ok := ret.Get(0).(func(*models.Token) (uint64, error)); ok {
+	if returnFunc, ok := ret.Get(0).(func(*app_model.Token) (uint64, error)); ok {
 		return returnFunc(token)
 	}
-	if returnFunc, ok := ret.Get(0).(func(*models.Token) uint64); ok {
+	if returnFunc, ok := ret.Get(0).(func(*app_model.Token) uint64); ok {
 		r0 = returnFunc(token)
 	} else {
 		r0 = ret.Get(0).(uint64)
 	}
-	if returnFunc, ok := ret.Get(1).(func(*models.Token) error); ok {
+	if returnFunc, ok := ret.Get(1).(func(*app_model.Token) error); ok {
 		r1 = returnFunc(token)
 	} else {
 		r1 = ret.Error(1)
@@ -474,16 +475,16 @@ type MockTokenProvider_Insert_Call struct {
 }
 
 // Insert is a helper method to define mock.On call
-//   - token *models.Token
+//   - token *app_model.Token
 func (_e *MockTokenProvider_Expecter) Insert(token interface{}) *MockTokenProvider_Insert_Call {
 	return &MockTokenProvider_Insert_Call{Call: _e.mock.On("Insert", token)}
 }
 
-func (_c *MockTokenProvider_Insert_Call) Run(run func(token *models.Token)) *MockTokenProvider_Insert_Call {
+func (_c *MockTokenProvider_Insert_Call) Run(run func(token *app_model.Token)) *MockTokenProvider_Insert_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		var arg0 *models.Token
+		var arg0 *app_model.Token
 		if args[0] != nil {
-			arg0 = args[0].(*models.Token)
+			arg0 = args[0].(*app_model.Token)
 		}
 		run(
 			arg0,
@@ -497,13 +498,13 @@ func (_c *MockTokenProvider_Insert_Call) Return(v uint64, err error) *MockTokenP
 	return _c
 }
 
-func (_c *MockTokenProvider_Insert_Call) RunAndReturn(run func(token *models.Token) (uint64, error)) *MockTokenProvider_Insert_Call {
+func (_c *MockTokenProvider_Insert_Call) RunAndReturn(run func(token *app_model.Token) (uint64, error)) *MockTokenProvider_Insert_Call {
 	_c.Call.Return(run)
 	return _c
 }
 
 // UpdateStatus provides a mock function for the type MockTokenProvider
-func (_mock *MockTokenProvider) UpdateStatus(ID uint64, status string) error {
+func (_mock *MockTokenProvider) UpdateStatus(ID uint64, status app_model.TokenStatus) error {
 	ret := _mock.Called(ID, status)
 
 	if len(ret) == 0 {
@@ -511,7 +512,7 @@ func (_mock *MockTokenProvider) UpdateStatus(ID uint64, status string) error {
 	}
 
 	var r0 error
-	if returnFunc, ok := ret.Get(0).(func(uint64, string) error); ok {
+	if returnFunc, ok := ret.Get(0).(func(uint64, app_model.TokenStatus) error); ok {
 		r0 = returnFunc(ID, status)
 	} else {
 		r0 = ret.Error(0)
@@ -526,20 +527,20 @@ type MockTokenProvider_UpdateStatus_Call struct {
 
 // UpdateStatus is a helper method to define mock.On call
 //   - ID uint64
-//   - status string
+//   - status app_model.TokenStatus
 func (_e *MockTokenProvider_Expecter) UpdateStatus(ID interface{}, status interface{}) *MockTokenProvider_UpdateStatus_Call {
 	return &MockTokenProvider_UpdateStatus_Call{Call: _e.mock.On("UpdateStatus", ID, status)}
 }
 
-func (_c *MockTokenProvider_UpdateStatus_Call) Run(run func(ID uint64, status string)) *MockTokenProvider_UpdateStatus_Call {
+func (_c *MockTokenProvider_UpdateStatus_Call) Run(run func(ID uint64, status app_model.TokenStatus)) *MockTokenProvider_UpdateStatus_Call {
 	_c.Call.Run(func(args mock.Arguments) {
 		var arg0 uint64
 		if args[0] != nil {
 			arg0 = args[0].(uint64)
 		}
-		var arg1 string
+		var arg1 app_model.TokenStatus
 		if args[1] != nil {
-			arg1 = args[1].(string)
+			arg1 = args[1].(app_model.TokenStatus)
 		}
 		run(
 			arg0,
@@ -554,7 +555,7 @@ func (_c *MockTokenProvider_UpdateStatus_Call) Return(err error) *MockTokenProvi
 	return _c
 }
 
-func (_c *MockTokenProvider_UpdateStatus_Call) RunAndReturn(run func(ID uint64, status string) error) *MockTokenProvider_UpdateStatus_Call {
+func (_c *MockTokenProvider_UpdateStatus_Call) RunAndReturn(run func(ID uint64, status app_model.TokenStatus) error) *MockTokenProvider_UpdateStatus_Call {
 	_c.Call.Return(run)
 	return _c
 }

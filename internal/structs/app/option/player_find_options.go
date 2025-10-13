@@ -1,4 +1,4 @@
-package models
+package app_option
 
 type PlayerFindOptions struct {
 	ID          uint64

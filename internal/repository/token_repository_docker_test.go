@@ -10,8 +10,9 @@ import (
 	"github.com/docker/go-connections/nat"
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/mbilarusdev/durak_auth_bot/internal/adapter"
-	"github.com/mbilarusdev/durak_auth_bot/internal/models"
 	"github.com/mbilarusdev/durak_auth_bot/internal/repository"
+	app_model "github.com/mbilarusdev/durak_auth_bot/internal/structs/app/model"
+	app_option "github.com/mbilarusdev/durak_auth_bot/internal/structs/app/option"
 	"github.com/testcontainers/testcontainers-go"
 	"github.com/testcontainers/testcontainers-go/wait"
 )
@@ -97,10 +98,10 @@ func TestTokenRepositoryDocker(t *testing.T) {
 	}
 	conn.Release()
 
-	t.Run("Token Inserted then Updated and Finded with success", func(t *testing.T) {
+	t.Run("All methods success", func(t *testing.T) {
 		playerRepo := repository.NewPlayerRepository(adapter.NewAdapterPool(pool))
 
-		player := &models.Player{
+		player := &app_model.Player{
 			Username:    "Nikola",
 			PhoneNumber: "+79150719486",
 			ChatID:      10,
@@ -113,32 +114,32 @@ func TestTokenRepositoryDocker(t *testing.T) {
 
 		repository := repository.NewTokenRepository(adapter.NewAdapterPool(pool))
 
-		token := &models.Token{
+		token := &app_model.Token{
 			PlayerID: 1,
 			Jwt:      "TOKEN",
-			Status:   models.TokenAvailable,
+			Status:   app_model.TokenAvailable,
 		}
 		tokenID, err := repository.Insert(token)
 		if err != nil {
 			t.Fatalf("Create token failed: %s", err)
 		}
 
-		err = repository.UpdateStatus(tokenID, models.TokenBlocked)
+		err = repository.UpdateStatus(tokenID, app_model.TokenBlocked)
 		if err != nil {
 			t.Fatalf("Update token failed: %s", err)
 		}
 
-		foundTokenById, err := repository.FindOne(&models.TokenFindOptions{ID: tokenID})
+		foundTokenById, err := repository.FindOne(&app_option.TokenFindOptions{ID: tokenID})
 		if err != nil {
 			t.Fatalf("Find token by id failed: %s", err)
 		}
 
-		if foundTokenById.Status != models.TokenBlocked {
+		if foundTokenById.Status != app_model.TokenBlocked {
 			t.Fatalf("Test failed: status not updated")
 		}
 
 		foundTokenById.ID = 0
-		foundTokenById.Status = models.TokenAvailable
+		foundTokenById.Status = app_model.TokenAvailable
 		if *foundTokenById != *token {
 			t.Fatalf("Test failed finded token not equals to inserted token!")
 		}

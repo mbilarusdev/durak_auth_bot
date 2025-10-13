@@ -8,12 +8,13 @@ import (
 
 	"github.com/jackc/pgx/v5"
 	"github.com/mbilarusdev/durak_auth_bot/internal/interfaces"
-	"github.com/mbilarusdev/durak_auth_bot/internal/models"
+	app_model "github.com/mbilarusdev/durak_auth_bot/internal/structs/app/model"
+	app_option "github.com/mbilarusdev/durak_auth_bot/internal/structs/app/option"
 )
 
 type PlayerProvider interface {
-	Insert(player *models.Player) (uint64, error)
-	FindOne(options *models.PlayerFindOptions) (*models.Player, error)
+	Insert(player *app_model.Player) (uint64, error)
+	FindOne(options *app_option.PlayerFindOptions) (*app_model.Player, error)
 }
 
 type PlayerRepository struct {
@@ -26,7 +27,7 @@ func NewPlayerRepository(pool interfaces.DBPool) *PlayerRepository {
 	return repository
 }
 
-func (repository *PlayerRepository) Insert(player *models.Player) (uint64, error) {
+func (repository *PlayerRepository) Insert(player *app_model.Player) (uint64, error) {
 	ctx := context.Background()
 	conn, err := repository.pool.Acquire(ctx)
 	if err != nil {
@@ -51,8 +52,8 @@ func (repository *PlayerRepository) Insert(player *models.Player) (uint64, error
 }
 
 func (repository *PlayerRepository) FindOne(
-	options *models.PlayerFindOptions,
-) (*models.Player, error) {
+	options *app_option.PlayerFindOptions,
+) (*app_model.Player, error) {
 	ctx := context.Background()
 	conn, err := repository.pool.Acquire(ctx)
 	if err != nil {
@@ -83,7 +84,7 @@ func (repository *PlayerRepository) FindOne(
 	}
 
 	query = strings.TrimSuffix(query, "AND ") + "LIMIT 1;"
-	findedPlayer := new(models.Player)
+	findedPlayer := new(app_model.Player)
 	if err := conn.QueryRow(
 		ctx,
 		query,

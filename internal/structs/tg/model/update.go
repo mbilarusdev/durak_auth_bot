@@ -1,4 +1,4 @@
-package models
+package tg_model
 
 type Update struct {
 	UpdateID      int            `json:"update_id"`

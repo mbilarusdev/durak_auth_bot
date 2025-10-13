@@ -7,14 +7,15 @@ import (
 
 	"github.com/jackc/pgx/v5"
 	"github.com/mbilarusdev/durak_auth_bot/internal/interfaces"
-	"github.com/mbilarusdev/durak_auth_bot/internal/models"
 	"github.com/mbilarusdev/durak_auth_bot/internal/repository"
+	app_model "github.com/mbilarusdev/durak_auth_bot/internal/structs/app/model"
+	app_option "github.com/mbilarusdev/durak_auth_bot/internal/structs/app/option"
 	"github.com/stretchr/testify/mock"
 )
 
 func TestPlayerRepository(t *testing.T) {
 	playerID := uint64(123)
-	player := &models.Player{
+	player := &app_model.Player{
 		Username:    "Vasiliy",
 		PhoneNumber: "+79680719568",
 		ChatID:      50,
@@ -59,14 +60,14 @@ func TestPlayerRepository(t *testing.T) {
 			[]any{playerID},
 		).Once().Return(row)
 
-		findedPlayer := new(models.Player)
+		findedPlayer := new(app_model.Player)
 		row.On("Scan", []any{&findedPlayer.ID, &findedPlayer.Username, &findedPlayer.PhoneNumber, &findedPlayer.ChatID, &findedPlayer.CreatedAt}).
 			Once().
 			Return(nil)
 
 		repository := repository.NewPlayerRepository(pool)
 
-		_, err := repository.FindOne(&models.PlayerFindOptions{ID: playerID})
+		_, err := repository.FindOne(&app_option.PlayerFindOptions{ID: playerID})
 
 		if err != nil {
 			t.Errorf("FindOne() by ID failed: %v", err)
@@ -86,14 +87,14 @@ func TestPlayerRepository(t *testing.T) {
 			[]any{player.ChatID},
 		).Once().Return(row)
 
-		findedPlayer := new(models.Player)
+		findedPlayer := new(app_model.Player)
 		row.On("Scan", []any{&findedPlayer.ID, &findedPlayer.Username, &findedPlayer.PhoneNumber, &findedPlayer.ChatID, &findedPlayer.CreatedAt}).
 			Once().
 			Return(nil)
 
 		repository := repository.NewPlayerRepository(pool)
 
-		_, err := repository.FindOne(&models.PlayerFindOptions{ChatID: player.ChatID})
+		_, err := repository.FindOne(&app_option.PlayerFindOptions{ChatID: player.ChatID})
 
 		if err != nil {
 			t.Errorf("FindOne() by ChatID failed: %v", err)
@@ -113,14 +114,14 @@ func TestPlayerRepository(t *testing.T) {
 			[]any{player.PhoneNumber},
 		).Once().Return(row)
 
-		findedPlayer := new(models.Player)
+		findedPlayer := new(app_model.Player)
 		row.On("Scan", []any{&findedPlayer.ID, &findedPlayer.Username, &findedPlayer.PhoneNumber, &findedPlayer.ChatID, &findedPlayer.CreatedAt}).
 			Once().
 			Return(nil)
 
 		repository := repository.NewPlayerRepository(pool)
 
-		_, err := repository.FindOne(&models.PlayerFindOptions{PhoneNumber: player.PhoneNumber})
+		_, err := repository.FindOne(&app_option.PlayerFindOptions{PhoneNumber: player.PhoneNumber})
 
 		if err != nil {
 			t.Errorf("FindOne() by PhoneNumber failed: %v", err)
@@ -140,7 +141,7 @@ func TestPlayerRepository(t *testing.T) {
 			[]any{playerID, player.PhoneNumber, player.ChatID},
 		).Once().Return(row)
 
-		findedPlayer := new(models.Player)
+		findedPlayer := new(app_model.Player)
 		row.On("Scan", []any{&findedPlayer.ID, &findedPlayer.Username, &findedPlayer.PhoneNumber, &findedPlayer.ChatID, &findedPlayer.CreatedAt}).
 			Once().
 			Return(nil)
@@ -148,7 +149,7 @@ func TestPlayerRepository(t *testing.T) {
 		repository := repository.NewPlayerRepository(pool)
 
 		_, err := repository.FindOne(
-			&models.PlayerFindOptions{
+			&app_option.PlayerFindOptions{
 				ID:          playerID,
 				PhoneNumber: player.PhoneNumber,
 				ChatID:      player.ChatID,
@@ -173,7 +174,7 @@ func TestPlayerRepository(t *testing.T) {
 			[]any{playerID, player.PhoneNumber, player.ChatID},
 		).Once().Return(row)
 
-		findedPlayer := new(models.Player)
+		findedPlayer := new(app_model.Player)
 		row.On("Scan", []any{&findedPlayer.ID, &findedPlayer.Username, &findedPlayer.PhoneNumber, &findedPlayer.ChatID, &findedPlayer.CreatedAt}).
 			Once().
 			Return(pgx.ErrNoRows)
@@ -181,7 +182,7 @@ func TestPlayerRepository(t *testing.T) {
 		repository := repository.NewPlayerRepository(pool)
 
 		_, err := repository.FindOne(
-			&models.PlayerFindOptions{
+			&app_option.PlayerFindOptions{
 				ID:          playerID,
 				PhoneNumber: player.PhoneNumber,
 				ChatID:      player.ChatID,

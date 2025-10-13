@@ -5,12 +5,12 @@ import (
 	"fmt"
 
 	"github.com/mbilarusdev/durak_auth_bot/internal/client"
-	"github.com/mbilarusdev/durak_auth_bot/internal/models"
+	tg_model "github.com/mbilarusdev/durak_auth_bot/internal/structs/tg/model"
 )
 
 type UpdatesManager interface {
-	Process(updates []models.Update)
-	Get(offset int) ([]models.Update, error)
+	Process(updates []tg_model.Update)
+	Get(offset int) ([]tg_model.Update, error)
 }
 
 type UpdatesService struct {
@@ -29,7 +29,7 @@ func NewUpdatesService(
 	return service
 }
 
-func (service *UpdatesService) Process(updates []models.Update) {
+func (service *UpdatesService) Process(updates []tg_model.Update) {
 	for _, upd := range updates {
 		if upd.Message != nil && upd.Message.Text == "/start" {
 			service.updHandleService.HandleStartMsg(upd)
@@ -40,7 +40,7 @@ func (service *UpdatesService) Process(updates []models.Update) {
 	}
 }
 
-func (service *UpdatesService) Get(offset int) ([]models.Update, error) {
+func (service *UpdatesService) Get(offset int) ([]tg_model.Update, error) {
 	client := service.tgClient
 	getURL := fmt.Sprintf("getUpdates?offset=%d&timeout=10", offset+1)
 	rawData, err := client.Get(getURL)
@@ -48,8 +48,8 @@ func (service *UpdatesService) Get(offset int) ([]models.Update, error) {
 		return nil, err
 	}
 	var result struct {
-		Ok     bool            `json:"ok"`
-		Result []models.Update `json:"result"`
+		Ok     bool              `json:"ok"`
+		Result []tg_model.Update `json:"result"`
 	}
 	err = json.Unmarshal(rawData, &result)
 	if err != nil {
