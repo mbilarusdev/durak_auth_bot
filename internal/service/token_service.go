@@ -31,7 +31,10 @@ func NewTokenService(tokenRepository repository.TokenProvider) *TokenService {
 }
 
 func (service *TokenService) FindActualByToken(token string) (*app_model.Token, error) {
-	playerID := jwt.GetSubID(token, common.Conf.Token)
+	playerID, err := jwt.GetSubID(token, common.Conf.Token)
+	if err != nil {
+		return nil, err
+	}
 	return service.FindActualByPlayerID(playerID)
 }
 

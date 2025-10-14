@@ -22,10 +22,10 @@ type ConfirmCodeEndpoint struct {
 }
 
 func NewConfirmCodeEndpoint(
-	codeService *service.CodeService,
-	messageService *service.MessageService,
-	playerService *service.PlayerService,
-	tokenService *service.TokenService,
+	codeService service.CodeManager,
+	messageService service.MessageManager,
+	playerService service.PlayerManager,
+	tokenService service.TokenManager,
 ) *ConfirmCodeEndpoint {
 	endpoint := &ConfirmCodeEndpoint{}
 	endpoint.codeService = codeService

@@ -1,20 +1,15 @@
 package app
 
 import (
-	"log"
-	"net/http"
-	"path/filepath"
-	"time"
-
 	"github.com/go-redis/redis/v8"
-	"github.com/gorilla/mux"
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/mbilarusdev/durak_auth_bot/internal/adapter"
-	"github.com/mbilarusdev/durak_auth_bot/internal/bot"
 	"github.com/mbilarusdev/durak_auth_bot/internal/client"
 	"github.com/mbilarusdev/durak_auth_bot/internal/common"
 	"github.com/mbilarusdev/durak_auth_bot/internal/endpoint"
+	grpcendpoint "github.com/mbilarusdev/durak_auth_bot/internal/grpc_endpoint"
 	"github.com/mbilarusdev/durak_auth_bot/internal/repository"
+	"github.com/mbilarusdev/durak_auth_bot/internal/server"
 	"github.com/mbilarusdev/durak_auth_bot/internal/service"
 )
 
@@ -42,9 +37,6 @@ func Run() {
 	updatesHandleService := service.NewUpdatesHandleService(messageService, playerService)
 	updatesService := service.NewUpdatesService(tgClient, updatesHandleService)
 
-	// Bot
-	bot := bot.NewAuthBot(updatesService)
-
 	// Endpoints
 	confirmCodeEndpoint := endpoint.NewConfirmCodeEndpoint(
 		codeService,
@@ -60,27 +52,23 @@ func Run() {
 	checkAuthEndpoint := endpoint.NewCheckAuthEndpoint(tokenService)
 	logoutEndpoint := endpoint.NewLogoutEndpoint(tokenService)
 
-	// Router
-	r := mux.NewRouter()
-	swaggerDir := filepath.Join("docs", "swagger-ui")
-	r.PathPrefix("/swagger/").
-		Handler(http.StripPrefix("/swagger/", http.FileServer(http.Dir(swaggerDir))))
-	r.HandleFunc("/swagger.json", func(w http.ResponseWriter, r *http.Request) {
-		http.ServeFile(w, r, "./docs/swagger.json")
-	})
-	r.HandleFunc("/code/send", sendCodeEndpoint.Call).Methods(http.MethodPost)
-	r.HandleFunc("/code/confirm", confirmCodeEndpoint.Call).Methods(http.MethodPost)
-	r.HandleFunc("/login/check", checkAuthEndpoint.Call).Methods(http.MethodPost)
-	r.HandleFunc("/logout", logoutEndpoint.Call).Methods(http.MethodPost)
-
-	// Serving
+	// Bot
+	bot := server.NewAuthBot(updatesService)
 	go bot.StartPolling()
-	server := &http.Server{
-		Addr:           ":8080",
-		Handler:        r,
-		ReadTimeout:    5 * time.Second,
-		WriteTimeout:   10 * time.Second,
-		MaxHeaderBytes: 1 << 20,
-	}
-	log.Fatal(server.ListenAndServe())
+
+	// Grpc Endpoints
+	grpcCheckAuthEndpoint := grpcendpoint.NewGrpcCheckAuthEndpoint(tokenService)
+
+	// Grpc-server
+	grpcServer := server.NewGrpcServer(grpcCheckAuthEndpoint)
+	go grpcServer.ListenAndServe()
+
+	// HTTP-server
+	httpServer := server.NewHttpServer(
+		sendCodeEndpoint,
+		confirmCodeEndpoint,
+		checkAuthEndpoint,
+		logoutEndpoint,
+	)
+	httpServer.ListenAndServe()
 }

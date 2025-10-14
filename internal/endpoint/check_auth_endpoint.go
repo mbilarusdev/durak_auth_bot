@@ -16,7 +16,7 @@ type CheckAuthEndpoint struct {
 	tokenService service.TokenManager
 }
 
-func NewCheckAuthEndpoint(tokenService *service.TokenService) *CheckAuthEndpoint {
+func NewCheckAuthEndpoint(tokenService service.TokenManager) *CheckAuthEndpoint {
 	endpoint := new(CheckAuthEndpoint)
 	endpoint.tokenService = tokenService
 	return endpoint

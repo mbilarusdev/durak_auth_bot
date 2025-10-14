@@ -1,4 +1,4 @@
-package bot
+package server
 
 import (
 	"log"
@@ -25,6 +25,7 @@ func (bot *AuthBot) StartPolling() {
 	updatesService := bot.updatesService
 
 	offset := 0
+	log.Printf("Starting TG Bot pooling")
 	for {
 		updates, err := updatesService.Get(offset)
 		if err != nil {
